@@ -1,2 +1,2 @@
-require './deploy'
+require './default'
 run Sinatra::Application
