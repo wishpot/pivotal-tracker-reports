@@ -1,0 +1,36 @@
+body 
+{
+  font-family: Tahoma, sans-serif;
+  font-size: 11pt;
+}
+h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
+.description {
+  font-size: smaller;
+  margin-bottom: 4pt;
+  margin-left: 10pt;
+}
+.people
+{
+  font-size: 7pt;
+  font-weight: bold;
+}
+.stories 
+{ 
+  padding: 5px; 
+  background-color: #ffffff; 
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  border: 1px solid #a3a3a3;
+}
+.label 
+{ 
+  padding: 8px; 
+  background-color: #E9EAEE; 
+  width: 510px; 
+  margin-bottom:10px; 
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+}
+.label h2 { padding-left: 5px; }
