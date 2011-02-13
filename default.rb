@@ -21,8 +21,14 @@ get '/:project/:api_key' do
       http.request(req)
     }
     
+    
     @stories = Hash.new
     @labels = Hash.new
+    
+    #this simply assumes all stories are weighted the same, but if a story has multiple labels, it
+    #splits it's weight across them.
+    @label_weights = Hash.new(0)
+    
     doc = Nokogiri::HTML(res.body)
     doc.xpath('//story').each do |s| 
       sid = s.xpath('id')[0].content
@@ -31,12 +37,21 @@ get '/:project/:api_key' do
       if labelnode.nil?
         @labels['z_uncategorized'] = Array.new unless @labels.has_key?('z_uncategorized')
         @labels['z_uncategorized'] << sid
+        @label_weights['z_uncategorized'] +=1
       else
-        labelnode.content.split(',').each do |l| 
+        labels = labelnode.content.split(',')
+        labels.each do |l| 
           @labels[l] = Array.new unless @labels.has_key?(l)
           @labels[l] << sid 
+          @label_weights[l] += 1.to_f/labels.count
         end
       end
     end
+    
+    #summarize the most-worked labels into an array of percentages
+    @top_labels = @label_weights.sort{|a,b| b[1]<=>a[1]}[0..2].each{|n| n[1] = ((n[1].to_f/@stories.count)*100).to_i }
+  
+    @top_labels.each {|l| p l}
+    
     haml :index
 end

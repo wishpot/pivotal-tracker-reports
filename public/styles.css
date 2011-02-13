@@ -34,3 +34,5 @@ h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
   border-radius: 10px;
 }
 .label h2 { padding-left: 5px; }
+#summary { margin-bottom: 5px; }
+#summary span { margin-right: 10px; }

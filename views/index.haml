@@ -4,6 +4,10 @@
     %title Accepted Stories Report
   %body
   %h1 #{@stories.count} Stories Live since #{@start_date}
+  #summary
+    Top Labels: 
+    - for stat in @top_labels
+      %span= Story.human_format(stat[0])+" "+stat[1].to_s+"%"
 - for label in @labels.keys.sort
   .label
     %h2= Story.human_format(label)
