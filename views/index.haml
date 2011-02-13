@@ -27,5 +27,5 @@
   - for sid in @labels[label]
     .story
     %a{:href => @stories[sid].url, :target=>'_blank'}= @stories[sid].title
-    .people [#{@stories[sid].accepted_at.strftime("%a %m/%d")}] requested by: #{@stories[sid].requested_by}
+    .people [#{@stories[sid].accepted_at.strftime("%a %m/%d")}] requested by #{@stories[sid].requested_by} on #{@stories[sid].created_at.strftime("%b %d")}
     .description #{@stories[sid].description}
