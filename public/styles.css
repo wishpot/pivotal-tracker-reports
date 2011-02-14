@@ -8,6 +8,7 @@ h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
   font-size: smaller;
   margin-bottom: 4pt;
   margin-left: 10pt;
+  overflow: hidden;
 }
 .people
 {
@@ -33,6 +34,10 @@ h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
   -moz-border-radius: 10px;
   border-radius: 10px;
 }
-.label h2 { padding-left: 5px; }
+.label h2 { padding-left: 5px; margin-top: 0; }
 #summary { margin-bottom: 5px; }
 #summary span { margin-right: 10px; }
+
+.red { color: red; }
+.green { color: green;}
+.title span { font-size: 80% }

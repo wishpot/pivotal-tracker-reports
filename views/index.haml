@@ -3,7 +3,9 @@
     %link{:href=>'/styles.css', :rel=>'stylesheet', :type=>'text/css'}
     %title Accepted Stories Report
   %body
-  %h1 #{@stories.count} Stories Live since #{@start_date}
+  %h1{:class=>'title'}
+    #{@stories.count} Stories Live since #{@start_date.strftime('%b %d')}
+    %span{:title=>"#{@created_stories} stories were created", :class=>(@improved ? 'green' : 'red')} (#{@created_stories} created)
   #summary
     Top Labels: 
     - for stat in @top_labels

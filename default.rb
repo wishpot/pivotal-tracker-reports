@@ -6,22 +6,23 @@ require 'net/http'
 require 'uri'
 require 'models/story.rb'
 
+before do
+   days_ago = params[:days_ago].to_i 
+   days_ago = 7 if days_ago < 1
+   @start_date = Date.today-days_ago
+   @pt_uri = URI.parse('http://www.pivotaltracker.com/')
+end
+
 get '/:project/:api_key' do
-  
-    days_ago = params[:days_ago].to_i 
-    days_ago = 7 if days_ago < 1
-    @start_date = Date.today-days_ago
-  
-    url = URI.parse('http://www.pivotaltracker.com/')
+
     req = Net::HTTP::Get.new(
       "/services/v3/projects/#{params[:project]}/stories?filter=state:accepted%20modified_since:#{@start_date.strftime("%m/%d/%Y")}", 
       {'X-TrackerToken'=>params[:api_key]}
     )
-    res = Net::HTTP.start(url.host, url.port) {|http|
+    res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
       http.request(req)
     }
-    
-    
+     
     @stories = Hash.new
     @labels = Hash.new
     
@@ -51,7 +52,20 @@ get '/:project/:api_key' do
     #summarize the most-worked labels into an array of percentages
     @top_labels = @label_weights.sort{|a,b| b[1]<=>a[1]}[0..2].each{|n| n[1] = ((n[1].to_f/@stories.count)*100).to_i }
   
-    @top_labels.each {|l| p l}
+    @created_stories = 0
+    begin
+      req = Net::HTTP::Get.new(
+        "/services/v3/projects/#{params[:project]}/stories?filter=created_since:#{@start_date.strftime("%m/%d/%Y")}", 
+        {'X-TrackerToken'=>params[:api_key]}
+      )
+      res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
+        http.request(req)
+      }
+      doc = Nokogiri::HTML(res.body)
+      @created_stories = doc.xpath('//stories')[0].attribute('count').value.to_i
+      @improved = (@created_stories < @stories.count)
+    rescue
+    end
     
     haml :index
 end
