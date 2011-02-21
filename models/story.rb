@@ -10,7 +10,8 @@ def from_xml(node)
   @accepted_at = DateTime.parse(node.xpath('accepted_at')[0].content)
   @created_at = DateTime.parse(node.xpath('created_at')[0].content)
   @requested_by = node.xpath('requested_by')[0].content
-  @owned_by = node.xpath('owned_by')[0].content
+  #releases don't have owners
+  @owned_by = node.xpath('owned_by')[0].content if !node.xpath('owned_by')[0].nil?
   self
 end
 
