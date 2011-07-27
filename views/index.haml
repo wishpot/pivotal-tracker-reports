@@ -19,7 +19,7 @@
           %img{:src=>type_to_img(@stories[sid].story_type), :title=>@stories[sid].story_type}
           %a{:href => @stories[sid].url, :target=>'_blank'}= @stories[sid].title
           .people [#{@stories[sid].accepted_at.strftime("%a %m/%d")}] requested by #{@stories[sid].requested_by} on #{@stories[sid].created_at.strftime("%b %d")}
-          .description #{@stories[sid].description}
+          .description #{Story.auto_link_urls(@stories[sid].description)}
 %h1{:class=>'title'}
   #{@upcoming_stories.count} Upcoming Stories
 %span These stories are either in progress, or estimated to be completed this week.
@@ -30,4 +30,3 @@
       %a{:href => story.url, :target=>'_blank', :title=>story.description}=story.title
       %br
       .people requested by #{story.requested_by} on #{story.created_at.strftime("%b %d")}, assigned to #{story.owned_by}
-          

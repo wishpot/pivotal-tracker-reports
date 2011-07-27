@@ -17,7 +17,7 @@ end
 get '/:project/:api_key' do
 
     req = Net::HTTP::Get.new(
-      "/services/v3/projects/#{params[:project]}/stories?filter=state:accepted%20modified_since:#{@start_date.strftime("%m/%d/%Y")}", 
+      "/services/v3/projects/#{params[:project]}/stories?filter=state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}", 
       {'X-TrackerToken'=>params[:api_key]}
     )
     res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
