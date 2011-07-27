@@ -5,6 +5,7 @@ require 'nokogiri'
 require 'net/http'
 require 'uri'
 require 'models/story.rb'
+require 'lib/helper.rb'
 
 before do
    days_ago = params[:days_ago].to_i 
