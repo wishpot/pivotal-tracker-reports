@@ -62,10 +62,26 @@ get '/:project/:api_key' do
       res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
         http.request(req)
       }
-      doc = Nokogiri::HTML(res.body)
-      @created_stories = doc.xpath('//stories')[0].attribute('count').value.to_i
+      @created_stories = Story.count_stories_from_xml(Nokogiri::HTML(res.body))
       @improved = (@created_stories < @stories.count)
     rescue
+    end
+    
+    #figure out which stories we expect to come this week
+    @upcoming_stories = Array.new
+    begin
+      req = Net::HTTP::Get.new(
+        "/services/v3/projects/#{params[:project]}/iterations/current_backlog?limit=1", 
+        {'X-TrackerToken'=>params[:api_key]}
+      )
+      res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
+        http.request(req)
+      }
+      doc = Nokogiri::HTML(res.body)
+      doc.xpath('//stories//story').each do |s|
+        story = Story.new.from_xml(s)
+        @upcoming_stories << story if story.accepted_at.nil?
+      end
     end
     
     haml :index
