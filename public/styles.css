@@ -39,6 +39,8 @@ h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
 #summary { margin-bottom: 5px; }
 #summary span { margin-right: 10px; }
 
+.state { font-size: 8pt; }
+
 .red { color: red; }
 .green { color: green;}
 .title span { font-size: 80% }

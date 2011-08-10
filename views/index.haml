@@ -23,10 +23,15 @@
 %h1{:class=>'title'}
   #{@upcoming_stories.count} Upcoming Stories
 %span These stories are either in progress, or estimated to be completed this week.
-%ol.upcoming
+%br
+%span.state finished = code complete, but not yet delivered. delivered = live, but not yet verified as fixed. 
+%table.upcoming
   - for story in @upcoming_stories
-    %li
-      %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
-      %a{:href => story.url, :target=>'_blank', :title=>story.description}=story.title
-      %br
-      .people requested by #{story.requested_by} on #{story.created_at.strftime("%b %d")}, assigned to #{story.owned_by}
+    %tr
+      %td
+        %span.state #{story.friendly_state}
+      %td
+        %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
+        %a{:href => story.url, :target=>'_blank', :title=>story.description}=story.title
+        %br
+        .people requested by #{story.requested_by} on #{story.created_at.strftime("%b %d")}, assigned to #{story.owned_by}
