@@ -6,7 +6,7 @@ attr_reader :id, :title, :description, :url, :accepted_at, :requested_by, :owned
 def from_xml(node)
   @id = node.xpath('id')[0].content
   @title = node.xpath('name')[0].content
-  @description = node.xpath('description')[0].content
+  @description = node.xpath('description')[0].content unless node.xpath('description')[0].nil?
   @url = node.xpath('url')[0].content
   accepted_at_node = node.xpath('accepted_at')[0]
   @accepted_at = accepted_at_node.nil? ? nil : DateTime.parse(accepted_at_node.content)
