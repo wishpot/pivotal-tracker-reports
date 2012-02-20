@@ -43,6 +43,8 @@ AUTO_LINK_CRE	=	[/<[^>]+$/, /^[^>]*>/, /<a\b.*?>/i, /<\/a>/i]
 BRACKETS		=	{ ']' => '[', ')' => '(', '}' => '{' }
 
 def self.auto_link_urls(text)
+          return text if text.nil?
+          
           text.gsub(AUTO_LINK_RE) do
             scheme, href = $1, $&
             punctuation = []
