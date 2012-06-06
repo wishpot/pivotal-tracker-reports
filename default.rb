@@ -4,6 +4,7 @@ require 'haml'
 require 'nokogiri'
 require 'net/http'
 require 'uri'
+require 'cgi'
 require 'models/story.rb'
 require 'lib/helper.rb'
 require 'date' #this is mac-specific, which doesn't require the standard libs.
