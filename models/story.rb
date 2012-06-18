@@ -25,6 +25,7 @@ end
 
 #handy for turning labels into something more human readable
 def self.human_format(str)
+  return str if str.nil?
   str.gsub('z_', '').gsub(/[_-]/, ' ').capitalize
 end
 
