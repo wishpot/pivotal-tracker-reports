@@ -68,7 +68,7 @@ get '/:projects/:api_key' do
         res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
           http.request(req)
         }
-        @created_stories = Story.count_stories_from_xml(Nokogiri::HTML(res.body))
+        @created_stories += Story.count_stories_from_xml(Nokogiri::HTML(res.body))
         @improved = (@created_stories < @stories.count)
       rescue
       end
