@@ -25,7 +25,13 @@
   #{@upcoming_stories.count} Upcoming Stories
 %span These stories are either in progress, or estimated to be completed this week.
 %br
-%span.state finished = code complete, but not yet delivered. delivered = live, but not yet verified as fixed. 
+%span.state 
+  %span.green 
+    %strong #{@upcoming_story_counts['finished']} 
+  finished = code complete, but not yet delivered. 
+  %span.green 
+    %strong #{@upcoming_story_counts['delivered']} 
+  delivered = live, but not yet verified as fixed. 
 %table.upcoming
   - for story in @upcoming_stories
     %tr

@@ -28,6 +28,7 @@ get '/:projects/:api_key' do
 
     #which stories are still to come
     @upcoming_stories = Array.new
+    @upcoming_story_counts = Hash.new(0)
 
     params[:projects].split(',').each do |project|
 
@@ -85,7 +86,10 @@ get '/:projects/:api_key' do
         doc = Nokogiri::HTML(res.body)
         doc.xpath('//stories//story').each do |s|
           story = Story.new.from_xml(s)
-          @upcoming_stories << story if story.accepted_at.nil?
+          if story.accepted_at.nil?
+            @upcoming_stories << story
+            @upcoming_story_counts[story.current_state] += 1
+          end
         end
       end
     end
