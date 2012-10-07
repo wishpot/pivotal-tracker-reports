@@ -17,7 +17,7 @@ before do
 end
 
 get '/:projects/:api_key' do
-
+    @title = 'Accepted Stories Report'
     @stories = Hash.new
     @labels = Hash.new
     
@@ -39,8 +39,7 @@ get '/:projects/:api_key' do
       res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
         http.request(req)
       }
-       
-      
+        
       doc = Nokogiri::HTML(res.body)
       doc.xpath('//story').each do |s| 
         sid = s.xpath('id')[0].content
@@ -76,14 +75,7 @@ get '/:projects/:api_key' do
       
       #figure out which stories we expect to come this week
       begin
-        req = Net::HTTP::Get.new(
-          "/services/v3/projects/#{project}/iterations/current_backlog?limit=1", 
-          {'X-TrackerToken'=>params[:api_key]}
-        )
-        res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
-          http.request(req)
-        }
-        doc = Nokogiri::HTML(res.body)
+        doc = Nokogiri::HTML(this_week(project, params[:api_key]))
         doc.xpath('//stories//story').each do |s|
           story = Story.new.from_xml(s)
           if story.accepted_at.nil?
@@ -98,4 +90,34 @@ get '/:projects/:api_key' do
     @top_labels = @label_weights.sort{|a,b| b[1]<=>a[1]}[0..2].each{|n| n[1] = ((n[1].to_f/@stories.count)*100).to_i }
     
     haml :index
+end
+
+get '/status/:projects/:api_key' do
+  @current_stories = Array.new
+  @current_points = 0
+  @next_up_stories = Array.new
+  @next_points = 0
+  @recently_delivered_by_owner = Hash.new
+
+  params[:projects].split(',').each do |project|
+    begin
+      doc = Nokogiri::HTML(this_week(project, params[:api_key]))
+      doc.xpath('//stories//story').each do |s|
+        story = Story.new.from_xml(s)
+        if story.accepted_at.nil?
+          if story.current_state == 'unstarted'
+            @next_up_stories << story
+            @next_points += story.estimate
+          else
+            @current_stories << story
+            @current_points += story.estimate
+          end
+        else
+          @recently_delivered_by_owner[story.owned_by] ||= Array.new and @recently_delivered_by_owner[story.owned_by] << story
+        end
+      end
+    end
+  end
+
+  haml :status
 end

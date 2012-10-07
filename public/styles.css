@@ -1,23 +1,29 @@
-body 
-{
-  font-family: Tahoma, sans-serif;
-  font-size: 11pt;
-}
+body   { font-family: Tahoma, sans-serif; font-size: 10pt; }
 h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
+h2     { margin-top: 1em;}
+
+.nav {
+  margin:0;
+  padding:0;
+}
+.nav li {
+  display:inline;
+  padding:0;
+  margin:0;
+}
+
 .description {
   font-size: smaller;
   margin-bottom: 4pt;
   margin-left: 10pt;
   overflow: hidden;
 }
-.people
-{
+.people {
   font-size: 7pt;
   font-weight: bold;
   padding-left: 18px; //for the icons
 }
-.stories 
-{ 
+.stories { 
   padding: 5px; 
   background-color: #ffffff; 
   -webkit-border-radius: 10px;
@@ -25,8 +31,7 @@ h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
   border-radius: 10px;
   border: 1px solid #a3a3a3;
 }
-.label 
-{ 
+.label { 
   padding: 8px; 
   background-color: #E9EAEE; 
   width: 510px; 
@@ -45,3 +50,5 @@ h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
 .green { color: green;}
 .title span { font-size: 80% }
 .upcoming { font-size: 80%; }
+
+table.work { font-size: 80%; }

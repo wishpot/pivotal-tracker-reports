@@ -1,0 +1,11 @@
+%html
+  %head 
+    %link{:href=>'/styles.css', :rel=>'stylesheet', :type=>'text/css'}
+    %title=@title
+  %body
+    %ol.nav
+      %li 
+        %a{:href=>"/#{params[:projects]}/#{params[:api_key]}", :title=>"Show activity from #{@start_date} to now"} Last Week
+      %li 
+        %a{:href=>"/status/#{params[:projects]}/#{params[:api_key]}"} Status
+    =yield

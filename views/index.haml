@@ -1,15 +1,10 @@
-%html
-  %head 
-    %link{:href=>'/styles.css', :rel=>'stylesheet', :type=>'text/css'}
-    %title Accepted Stories Report
-  %body
-  %h1{:class=>'title'}
-    #{@stories.count} Stories Live since #{@start_date.strftime('%b %d')}
-    %span{:title=>"#{@created_stories} stories were created", :class=>(@improved ? 'green' : 'red')} (#{@created_stories} created)
-  #summary
-    Top Labels: 
-    - for stat in @top_labels
-      %span= Story.human_format(stat[0])+" "+stat[1].to_s+"%"
+%h1{:class=>'title'}
+  #{@stories.count} Stories Live since #{@start_date.strftime('%b %d')}
+  %span{:title=>"#{@created_stories} stories were created", :class=>(@improved ? 'green' : 'red')} (#{@created_stories} created)
+#summary
+  Top Labels: 
+  - for stat in @top_labels
+    %span= Story.human_format(stat[0])+" "+stat[1].to_s+"%"
 - for label in @labels.keys.sort
   .label
     %h2= Story.human_format(label)
@@ -17,7 +12,7 @@
       - for sid in @labels[label]
         .story
           %img{:src=>type_to_img(@stories[sid].story_type), :title=>@stories[sid].story_type}
-          %a{:href => @stories[sid].url, :target=>'_blank'}= @stories[sid].title
+          =friendly_title(@stories[sid])
           .people [#{@stories[sid].accepted_at.strftime("%a %m/%d")}] requested by #{@stories[sid].requested_by} on #{@stories[sid].created_at.strftime("%b %d")}
           - unless @stories[sid].description.nil?
             .description #{Story.auto_link_urls(CGI.escapeHTML(@stories[sid].description))}
@@ -39,6 +34,6 @@
         %span.state #{story.friendly_state}
       %td
         %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
-        %a{:href => story.url, :target=>'_blank', :title=>CGI.escapeHTML(story.description)}=story.title
+        =friendly_title(story)
         %br
         .people requested by #{story.requested_by} on #{story.created_at.strftime("%b %d")}, assigned to #{story.owned_by}

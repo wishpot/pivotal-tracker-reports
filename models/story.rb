@@ -1,6 +1,6 @@
 
 class Story
-attr_reader :id, :title, :description, :url, :accepted_at, :requested_by, :owned_by, :created_at, :story_type, :current_state
+attr_reader :id, :title, :description, :url, :accepted_at, :requested_by, :owned_by, :created_at, :story_type, :current_state, :estimate, :updated_at
   
 # Builds a story given an XML node from pivotal tracker
 def from_xml(node)
@@ -11,11 +11,15 @@ def from_xml(node)
   accepted_at_node = node.xpath('accepted_at')[0]
   @accepted_at = accepted_at_node.nil? ? nil : DateTime.parse(accepted_at_node.content)
   @created_at = DateTime.parse(node.xpath('created_at')[0].content)
+  @updated_at = DateTime.parse(node.xpath('updated_at')[0].content)
   @requested_by = node.xpath('requested_by')[0].content
   @current_state = node.xpath('current_state')[0].content
   owned_by_node = node.xpath('owned_by')[0]
   @owned_by = owned_by_node.nil? || owned_by_node.content.length == 0 ? 'no one' : owned_by_node.content
   @story_type = node.xpath('story_type')[0].content
+  estimate_node = node.xpath('estimate')[0]
+  @estimate = estimate_node.nil? ? 0 : estimate_node.content.to_i
+  @estimate = 0 if @estimate < 0
   self
 end
 

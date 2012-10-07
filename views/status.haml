@@ -1,0 +1,28 @@
+%h1{:class=>'title'}
+  Project Status
+%h2 Current: #{@current_stories.count} stories, #{@current_points} points
+%table.work
+  - for story in @current_stories
+    %tr
+      %th 
+    %tr
+      %td #{story.estimate}
+      %td #{story.friendly_state} 
+      %td #{story.owned_by} 
+      %td #{friendly_title(story)}
+      %td #{story.updated_at.strftime("%b %d")}
+
+%h2 Next Up: #{@next_up_stories.count} stories, #{@next_points} points
+%table.work
+  - for story in @next_up_stories
+    %tr
+      %th 
+    %tr
+      %td #{story.estimate}
+      %td #{story.friendly_state} 
+      %td #{story.owned_by} 
+      %td #{friendly_title(story)}
+      %td #{story.updated_at.strftime("%b %d")}
+
+%h2 Backlog
+
