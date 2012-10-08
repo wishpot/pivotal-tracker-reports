@@ -40,6 +40,14 @@ def friendly_state
   current_state
 end
 
+# Given two stories (a and b) this is how you'd sort them
+# if you wanted to sort by status
+def self.status_sort(a,b)
+  STATUS_PRIORITY[a.current_state] <=> STATUS_PRIORITY[b.current_state]
+end
+
+STATUS_PRIORITY = { 'rejected'=>1, 'delivered'=>2, 'finished'=>3, 'started'=>4 }
+
 #Simplified version from the rails source
 #http://api.rubyonrails.org/classes/ActionView/Helpers/TextHelper.html
 
@@ -84,5 +92,7 @@ def self.auto_linked?(left, right)
   (left =~ AUTO_LINK_CRE[0] and right =~ AUTO_LINK_CRE[1]) or
     (left.rindex(AUTO_LINK_CRE[2]) and $' !~ AUTO_LINK_CRE[3])
 end
+
+
 
 end

@@ -19,3 +19,15 @@ def this_week(project, api_key)
 	}
 	return res.body
 end
+
+def created_since(date, project, api_key, filter='')
+	filter = '&'+filter if '' != filter
+	req = Net::HTTP::Get.new(
+      "/services/v3/projects/#{project}/stories?filter=created_since:#{date.strftime("%m/%d/%Y")}#{filter}", 
+      {'X-TrackerToken'=>api_key}
+    )
+    res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
+      http.request(req)
+    }
+    return res.body
+end

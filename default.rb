@@ -10,9 +10,9 @@ require 'lib/helper.rb'
 require 'date' #this is mac-specific, which doesn't require the standard libs.
 
 before do
-   days_ago = params[:days_ago].to_i 
-   days_ago = 7 if days_ago < 1
-   @start_date = Date.today-days_ago
+   @days_ago = params[:days_ago].to_i 
+   @days_ago = 7 if @days_ago < 1
+   @start_date = Date.today-@days_ago
    @pt_uri = URI.parse('http://www.pivotaltracker.com/')
 end
 
@@ -61,14 +61,7 @@ get '/:projects/:api_key' do
       
       
       begin
-        req = Net::HTTP::Get.new(
-          "/services/v3/projects/#{project}/stories?filter=created_since:#{@start_date.strftime("%m/%d/%Y")}", 
-          {'X-TrackerToken'=>params[:api_key]}
-        )
-        res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
-          http.request(req)
-        }
-        @created_stories += Story.count_stories_from_xml(Nokogiri::HTML(res.body))
+        @created_stories += Story.count_stories_from_xml(Nokogiri::HTML(created_since(@start_date, project, params[:api_key])))
         @improved = (@created_stories < @stories.count)
       rescue
       end
@@ -99,7 +92,10 @@ get '/status/:projects/:api_key' do
   @next_points = 0
   @recently_delivered_by_owner = Hash.new
 
+  @recently_logged_stories = Array.new
+
   params[:projects].split(',').each do |project|
+    #Get the upcoming work
     begin
       doc = Nokogiri::HTML(this_week(project, params[:api_key]))
       doc.xpath('//stories//story').each do |s|
@@ -115,6 +111,14 @@ get '/status/:projects/:api_key' do
         else
           @recently_delivered_by_owner[story.owned_by] ||= Array.new and @recently_delivered_by_owner[story.owned_by] << story
         end
+      end
+    end
+    #Grab the recently logged stories
+    begin
+      doc = Nokogiri::HTML(created_since(@start_date, project, params[:api_key], 'state:unstarted'))
+      doc.xpath('//stories//story').each do |s|
+        story = Story.new.from_xml(s)
+        @recently_logged_stories << story
       end
     end
   end
