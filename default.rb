@@ -93,6 +93,7 @@ get '/status/:projects/:api_key' do
   @recently_delivered_by_owner = Hash.new
 
   @recently_logged_stories = Array.new
+  @backlog_stories = Array.new
 
   params[:projects].split(',').each do |project|
     #Get the upcoming work
@@ -113,12 +114,25 @@ get '/status/:projects/:api_key' do
         end
       end
     end
+    
     #Grab the recently logged stories
     begin
       doc = Nokogiri::HTML(created_since(@start_date, project, params[:api_key], 'state:unstarted'))
       doc.xpath('//stories//story').each do |s|
-        story = Story.new.from_xml(s)
-        @recently_logged_stories << story
+        @recently_logged_stories << Story.new.from_xml(s)
+      end
+    end
+
+    #Grab the rest of the backlog
+    begin
+      doc = Nokogiri::HTML(iterations(project, params[:api_key], 3, 1))
+      doc.xpath('//iteration').each do |i|
+        due = Date.parse(i.xpath('finish')[0].content)
+        i.xpath('//stories//story').each do |s|
+          story = Story.new.from_xml(s)
+          story.estimated_date = due
+          @backlog_stories << story
+        end
       end
     end
   end

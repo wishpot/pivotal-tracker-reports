@@ -1,7 +1,8 @@
 
 class Story
 attr_reader :id, :title, :description, :url, :accepted_at, :requested_by, :owned_by, :created_at, :story_type, :current_state, :estimate, :updated_at
-  
+attr_accessor :estimated_date
+
 # Builds a story given an XML node from pivotal tracker
 def from_xml(node)
   @id = node.xpath('id')[0].content

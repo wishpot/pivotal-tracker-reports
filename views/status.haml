@@ -6,28 +6,40 @@
     %tr
       %th 
     %tr
-      %td #{story.estimate}
       %td #{story.friendly_state} 
       %td #{story.owned_by} 
-      %td #{friendly_title(story)}
-      %td #{story.updated_at.strftime("%b %d")}
+      %td 
+        %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"} (#{story.estimate} points) 
+        #{friendly_title(story)}
+
+%h2 Coming Soon: #{@next_up_stories.count} stories, #{@next_points} points
+%table.work
+  - for story in @next_up_stories
+    %tr
+      %th 
+    %tr
+      %td #{story.friendly_state} 
+      %td #{story.owned_by} 
+      %td 
+        %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"} (#{story.estimate} points) 
+        #{friendly_title(story)}
+
+%h2 Backlog
+%table.work
+  - for story in @backlog_stories
+    %tr
+      %th 
+    %tr
+      %td 
+        %span{:title=>"Estimated 'code complete'"} #{story.estimated_date.strftime("%b %d")}
+      %td #{story.friendly_state} 
+      %td #{story.owned_by} 
+      %td 
+        %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"} (#{story.estimate} points) 
+        #{friendly_title(story)}
 
 %h2 Recently Logged: #{@recently_logged_stories.count} stories
 These stories were logged within the last #{@days_ago} days, and may need to be prioritized
 %ul
   - for story in @recently_logged_stories.sort{|a,b| a.created_at <=> b.created_at}
     %li #{story.requested_by} on #{story.created_at.strftime("%b %d")}: #{friendly_title(story)}
-%h2 Next Up: #{@next_up_stories.count} stories, #{@next_points} points
-%table.work
-  - for story in @next_up_stories
-    %tr
-      %th 
-    %tr
-      %td #{story.estimate}
-      %td #{story.friendly_state} 
-      %td #{story.owned_by} 
-      %td #{friendly_title(story)}
-      %td #{story.updated_at.strftime("%b %d")}
-
-%h2 Backlog
-
