@@ -11,18 +11,18 @@
       %td 
         %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"} (#{story.estimate} points) 
         #{friendly_title(story)}
-
-%h2 Coming Soon: #{@next_up_stories.count} stories, #{@next_points} points
-%table.work
-  - for story in @next_up_stories
-    %tr
-      %th 
-    %tr
-      %td #{story.friendly_state} 
-      %td #{story.owned_by} 
-      %td 
-        %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"} (#{story.estimate} points) 
-        #{friendly_title(story)}
+- if @next_up_stories.count > 0
+  %h2 Coming Soon: #{@next_up_stories.count} stories, #{@next_points} points
+  %table.work
+    - for story in @next_up_stories
+      %tr
+        %th 
+      %tr
+        %td #{story.friendly_state} 
+        %td #{story.owned_by} 
+        %td 
+          %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"} (#{story.estimate} points) 
+          #{friendly_title(story)}
 
 %h2 Backlog
 %table.work
