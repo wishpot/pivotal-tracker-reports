@@ -31,10 +31,38 @@ def iterations(project, api_key, limit=1, skip=0)
 	return res.body
 end
 
+def icebox(project, api_key, filter='')
+	return stories(project, api_key, "state:unscheduled#{filter}")
+end
+
 def created_since(date, project, api_key, filter='')
-	filter = '&'+filter if '' != filter
+	return stories(project, api_key, "created_since:#{date.strftime("%m/%d/%Y")}#{filter}")
+end
+
+def parse_stories_from_iterations(html)
+	stories = Array.new
+	story_iteration_iterator(Nokogiri::HTML(html)) { |story| stories << story }
+	return stories
+end
+
+#Given an HTML doc, builds a story for each and yields each one
+def story_iteration_iterator(doc)
+	doc.xpath('//iteration').each do |i|
+		due = Date.parse(i.xpath('finish')[0].content)
+		i.xpath('//stories//story').each do |s|
+			story = Story.new.from_xml(s)
+			story.estimated_date = due
+			yield story
+		end
+	end
+end
+
+private
+
+#This wraps the story search
+def stories(project, api_key, filter='')
 	req = Net::HTTP::Get.new(
-      "/services/v3/projects/#{project}/stories?filter=created_since:#{date.strftime("%m/%d/%Y")}#{filter}", 
+      "/services/v3/projects/#{project}/stories?filter=#{filter}", 
       {'X-TrackerToken'=>api_key}
     )
     res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|

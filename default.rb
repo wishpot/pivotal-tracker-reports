@@ -94,13 +94,13 @@ get '/status/:projects/:api_key' do
 
   @recently_logged_stories = Array.new
   @backlog_stories = Array.new
+  @icebox = Array.new
 
   params[:projects].split(',').each do |project|
     #Get the upcoming work
     begin
       doc = Nokogiri::HTML(this_week(project, params[:api_key]))
-      doc.xpath('//stories//story').each do |s|
-        story = Story.new.from_xml(s)
+      story_iteration_iterator(doc) do |story|
         if story.accepted_at.nil?
           if story.current_state == 'unstarted'
             @next_up_stories << story
@@ -125,14 +125,14 @@ get '/status/:projects/:api_key' do
 
     #Grab the rest of the backlog
     begin
-      doc = Nokogiri::HTML(iterations(project, params[:api_key], 3, 1))
-      doc.xpath('//iteration').each do |i|
-        due = Date.parse(i.xpath('finish')[0].content)
-        i.xpath('//stories//story').each do |s|
-          story = Story.new.from_xml(s)
-          story.estimated_date = due
-          @backlog_stories << story
-        end
+      @backlog_stories = parse_stories_from_iterations(iterations(project, params[:api_key], 3, 1))
+    end
+
+    #Grab the icebox
+    begin
+      doc = Nokogiri::HTML(icebox(project, params[:api_key]))
+      doc.xpath('//stories//story').take(20).each do |s|
+        @icebox << Story.new.from_xml(s)
       end
     end
   end
