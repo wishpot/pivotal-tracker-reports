@@ -117,7 +117,7 @@ get '/status/:projects/:api_key' do
     
     #Grab the recently logged stories
     begin
-      doc = Nokogiri::HTML(created_since(@start_date, project, params[:api_key], 'state:unstarted'))
+      doc = Nokogiri::HTML(created_since(@start_date, project, params[:api_key], 'state:unscheduled'))
       doc.xpath('//stories//story').each do |s|
         @recently_logged_stories << Story.new.from_xml(s)
       end

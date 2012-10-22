@@ -36,7 +36,7 @@ def icebox(project, api_key, filter='')
 end
 
 def created_since(date, project, api_key, filter='')
-	return stories(project, api_key, "created_since:#{date.strftime("%m/%d/%Y")}#{filter}")
+	return stories(project, api_key, "created_since:#{date.strftime("%m/%d/%Y")}%20#{filter}")
 end
 
 def parse_stories_from_iterations(html)
