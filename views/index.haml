@@ -1,10 +1,14 @@
 %h1{:class=>'title'}
-  #{@stories.count} Stories Live since #{@start_date.strftime('%b %d')}
-  %span{:title=>"#{@created_stories} stories were created", :class=>(@improved ? 'green' : 'red')} (#{@created_stories} created)
+  %span{:title=>"#{ @story_points} points"} #{@stories.count} Stories 
+  Live since #{@start_date.strftime('%b %d')}
+  %span{:title=>"#{@created_stories} stories were created", :class=>'improved '+(@improved ? 'green' : 'red')} (#{@created_stories} created)
 #summary
   Top Labels: 
   - for stat in @top_labels
     %span= Story.human_format(stat[0])+" "+stat[1].to_s+"%"
+  %ul
+    - for work in @top_owners
+      %li= work.name+" "+work.story_count.to_s+" stories, "+work.points_count.to_s+" points"
 - for label in @labels.keys.sort
   .label
     %h2= Story.human_format(label)
@@ -18,8 +22,6 @@
             .description #{Story.auto_link_urls(CGI.escapeHTML(@stories[sid].description))}
 %h1{:class=>'title'}
   #{@upcoming_stories.count} Upcoming Stories
-%span These stories are either in progress, or estimated to be completed this week.
-%br
 %span.state 
   %span.green 
     %strong #{@upcoming_story_counts['finished']} 
@@ -36,4 +38,4 @@
         %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
         =friendly_title(story)
         %br
-        .people requested by #{story.requested_by} on #{story.created_at.strftime("%b %d")}, assigned to #{story.owned_by}
+        .people Owner: #{story.owned_by} | Requested by: #{story.requested_by} on #{story.created_at.strftime("%b %d")} 

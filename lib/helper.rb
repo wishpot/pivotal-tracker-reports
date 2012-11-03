@@ -57,8 +57,6 @@ def story_iteration_iterator(doc)
 	end
 end
 
-private
-
 #This wraps the story search
 def stories(project, api_key, filter='')
 	req = Net::HTTP::Get.new(

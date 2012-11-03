@@ -6,6 +6,7 @@ require 'net/http'
 require 'uri'
 require 'cgi'
 require 'models/story.rb'
+require 'models/owner_work.rb'
 require 'lib/helper.rb'
 require 'date' #this is mac-specific, which doesn't require the standard libs.
 
@@ -20,6 +21,8 @@ get '/:projects/:api_key' do
     @title = 'Accepted Stories Report'
     @stories = Hash.new
     @labels = Hash.new
+    @story_points = 0
+    @owner_work = Hash.new
     
     #this simply assumes all stories are weighted the same, but if a story has multiple labels, it
     #splits it's weight across them.
@@ -32,18 +35,13 @@ get '/:projects/:api_key' do
 
     params[:projects].split(',').each do |project|
 
-      req = Net::HTTP::Get.new(
-        "/services/v3/projects/#{project}/stories?filter=state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}", 
-        {'X-TrackerToken'=>params[:api_key]}
-      )
-      res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
-        http.request(req)
-      }
-        
-      doc = Nokogiri::HTML(res.body)
+      doc = Nokogiri::HTML(stories(project, params[:api_key], "state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}"))
+ 
       doc.xpath('//story').each do |s| 
         sid = s.xpath('id')[0].content
         @stories[sid] = Story.new.from_xml(s)
+        @story_points += @stories[sid].estimate
+        @owner_work[@stories[sid].owned_by] ||= OwnerWork.new(@stories[sid].owned_by) and @owner_work[@stories[sid].owned_by].increment(@stories[sid].estimate)
         labelnode = s.xpath('labels')[0]
         if labelnode.nil?
           @labels['z_uncategorized'] = Array.new unless @labels.has_key?('z_uncategorized')
@@ -80,7 +78,11 @@ get '/:projects/:api_key' do
     end
 
     #summarize the most-worked labels into an array of percentages
-    @top_labels = @label_weights.sort{|a,b| b[1]<=>a[1]}[0..2].each{|n| n[1] = ((n[1].to_f/@stories.count)*100).to_i }
+    @top_labels = @label_weights.sort{|a,b| b[1]<=>a[1]}[0..3].each{|n| n[1] = ((n[1].to_f/@stories.count)*100).to_i }
+    @top_owners = @owner_work.values.sort{|a,b| 
+      comp = (b.points_count <=> a.points_count )
+      comp.zero? ? (b.story_count <=> a.story_count ) : comp 
+    }
     
     haml :index
 end
