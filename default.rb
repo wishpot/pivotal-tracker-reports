@@ -42,19 +42,6 @@ get '/:projects/:api_key' do
         @stories[sid] = Story.new.from_xml(s)
         @story_points += @stories[sid].estimate
         @owner_work[@stories[sid].owned_by] ||= OwnerWork.new(@stories[sid].owned_by) and @owner_work[@stories[sid].owned_by].increment(@stories[sid].estimate)
-        labelnode = s.xpath('labels')[0]
-        if labelnode.nil?
-          @labels['z_uncategorized'] = Array.new unless @labels.has_key?('z_uncategorized')
-          @labels['z_uncategorized'] << sid
-          @label_weights['z_uncategorized'] +=1
-        else
-          labels = labelnode.content.split(',')
-          labels.each do |l| 
-            @labels[l] = Array.new unless @labels.has_key?(l)
-            @labels[l] << sid 
-            @label_weights[l] += 1.to_f/labels.count
-          end
-        end
       end
       
       
@@ -77,8 +64,7 @@ get '/:projects/:api_key' do
       end
     end
 
-    #summarize the most-worked labels into an array of percentages
-    @top_labels = @label_weights.sort{|a,b| b[1]<=>a[1]}[0..3].each{|n| n[1] = ((n[1].to_f/@stories.count)*100).to_i }
+    @top_labels = Story.top_labels(@stories.values)
     @top_owners = @owner_work.values.sort{|a,b| 
       comp = (b.points_count <=> a.points_count )
       comp.zero? ? (b.story_count <=> a.story_count ) : comp 

@@ -1,6 +1,6 @@
 
 class Story
-attr_reader :id, :title, :description, :url, :accepted_at, :requested_by, :owned_by, :created_at, :story_type, :current_state, :estimate, :updated_at
+attr_reader :id, :title, :description, :url, :accepted_at, :requested_by, :owned_by, :created_at, :story_type, :current_state, :estimate, :updated_at, :labels
 attr_accessor :estimated_date
 
 # Builds a story given an XML node from pivotal tracker
@@ -21,6 +21,9 @@ def from_xml(node)
   estimate_node = node.xpath('estimate')[0]
   @estimate = estimate_node.nil? ? 0 : estimate_node.content.to_i
   @estimate = 0 if @estimate < 0
+  labelnode = node.xpath('labels')[0]
+  @labels = labelnode.content.split(',') unless labelnode.nil?
+
   self
 end
 
@@ -48,6 +51,29 @@ def self.status_sort(a,b)
 end
 
 STATUS_PRIORITY = { 'rejected'=>1, 'delivered'=>2, 'finished'=>3, 'started'=>4 }
+
+def self.top_labels(story_array, limit=3)
+  #this simply assumes all stories are weighted the same, but if a story has multiple labels, it
+  #splits it's weight across them.
+  @label_weights = Hash.new(0)
+  @labels = Hash.new
+
+  story_array.each { |story|
+    if story.labels.nil?
+      @labels['z_uncategorized'] = Array.new unless @labels.has_key?('z_uncategorized')
+      @labels['z_uncategorized'] << story.id 
+      @label_weights['z_uncategorized'] +=1
+    else
+      story.labels.each do |l| 
+        @labels[l] = Array.new unless @labels.has_key?(l)
+        @labels[l] << story.id 
+        @label_weights[l] += 1.to_f/story.labels.count
+      end
+    end
+  }
+  #summarize the most-worked labels into an array of percentages
+  @label_weights.sort{|a,b| b[1]<=>a[1]}[0..limit].each{|n| n[1] = ((n[1].to_f/story_array.count)*100).to_i }
+end
 
 #Simplified version from the rails source
 #http://api.rubyonrails.org/classes/ActionView/Helpers/TextHelper.html
