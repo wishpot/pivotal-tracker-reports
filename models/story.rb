@@ -50,7 +50,7 @@ def self.status_sort(a,b)
   STATUS_PRIORITY[a.current_state] <=> STATUS_PRIORITY[b.current_state]
 end
 
-STATUS_PRIORITY = { 'rejected'=>1, 'delivered'=>2, 'finished'=>3, 'started'=>4 }
+STATUS_PRIORITY = { 'accepted'=>0, 'rejected'=>1, 'delivered'=>2, 'finished'=>3, 'started'=>4 }
 
 def self.top_labels(story_array, limit=3)
   #this simply assumes all stories are weighted the same, but if a story has multiple labels, it

@@ -51,5 +51,9 @@ h2     { margin-top: 1em;}
 .improved { font-size: 80% }
 .upcoming { font-size: 80%; }
 
+.unstyled li {list-style: none;}
+
 table.work { font-size: 80%; }
 td h2 { background-color: #E9EAEE; padding: 1pt;}
+td .subtitle {background-color: #CCCFDB; display:block; text-align: right; padding: 1pt;}
+table.work td.state,td.owner {white-space:nowrap;}

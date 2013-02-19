@@ -74,6 +74,14 @@ get '/:projects/:api_key' do
 end
 
 get '/status/:projects/:api_key' do
+
+  include_icebox = (params[:icebox] != 'false')
+  include_done = (params[:done] != 'false')
+  include_backlog = (params[:backlog] != 'false')
+
+  @done_stories = Array.new
+  @done_points = 0
+
   @current_stories = Array.new
   @current_points = 0
   @next_up_stories = Array.new
@@ -85,20 +93,30 @@ get '/status/:projects/:api_key' do
   @icebox = Array.new
 
   params[:projects].split(',').each do |project|
+
+    #Work done in last iteration
+    if(include_done)
+       doc = Nokogiri::HTML(done(project, params[:api_key])) 
+       story_iteration_iterator(doc) do |story|
+        if story.accepted_at.nil?
+          @recently_delivered_by_owner[story.owned_by] ||= Array.new and @recently_delivered_by_owner[story.owned_by] << story
+        else
+          @done_stories << story
+          @done_points += story.estimate  
+        end
+      end
+    end
+
     #Get the upcoming work
     begin
       doc = Nokogiri::HTML(this_week(project, params[:api_key]))
       story_iteration_iterator(doc) do |story|
-        if story.accepted_at.nil?
-          if story.current_state == 'unstarted'
-            @next_up_stories << story
-            @next_points += story.estimate
-          else
-            @current_stories << story
-            @current_points += story.estimate
-          end
+        if story.current_state == 'unstarted'
+          @next_up_stories << story
+          @next_points += story.estimate
         else
-          @recently_delivered_by_owner[story.owned_by] ||= Array.new and @recently_delivered_by_owner[story.owned_by] << story
+          @current_stories << story
+          @current_points += story.estimate
         end
       end
     end
@@ -112,12 +130,12 @@ get '/status/:projects/:api_key' do
     end
 
     #Grab the rest of the backlog
-    begin
+    if include_backlog
       @backlog_stories = parse_stories_from_iterations(iterations(project, params[:api_key], 3, 1))
     end
 
     #Grab the icebox
-    begin
+    if(include_icebox)
       doc = Nokogiri::HTML(icebox(project, params[:api_key]))
       doc.xpath('//stories//story').take(20).each do |s|
         @icebox << Story.new.from_xml(s)

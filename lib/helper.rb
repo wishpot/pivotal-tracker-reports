@@ -10,21 +10,24 @@ end
 
 #Fetches this week's work - returns the body of the API response
 def this_week(project, api_key)
-	req = Net::HTTP::Get.new(
-	      "/services/v3/projects/#{project}/iterations/current", 
-	      {'X-TrackerToken'=>api_key}
-	    )
-	res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
-	  http.request(req)
-	}
-	return res.body
+	return _iterations('current', project, api_key)
 end
 
 def iterations(project, api_key, limit=1, skip=0)
-	req = Net::HTTP::Get.new(
-	      "/services/v3/projects/#{project}/iterations/current_backlog?limit=#{limit}&offset=#{skip}", 
-	      {'X-TrackerToken'=>api_key}
-	    )
+	return _iterations('current_backlog', project, api_key, limit, skip)
+end
+
+#NOTE: in this context, 'skip' means 'how many backwards to skip'
+def done(project, api_key, limit=1, skip=0)
+	return _iterations('done', project, api_key, limit, (skip*-1)-1)
+end
+
+def _iterations(path, project, api_key, limit=nil, skip=nil)
+	url = "/services/v3/projects/#{project}/iterations/#{path}?"
+	url += "limit=#{limit}&" unless limit.nil?
+	url += "offset=#{skip}&" unless skip.nil?
+
+	req = Net::HTTP::Get.new( url, {'X-TrackerToken'=>api_key} )
 	res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
 	  http.request(req)
 	}
