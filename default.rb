@@ -33,7 +33,7 @@ get '/:projects/:api_key' do
     @upcoming_stories = Array.new
     @upcoming_story_counts = Hash.new(0)
 
-    params[:projects].split(',').each do |project|
+    params[:projects].split(',').uniq.each do |project|
 
       doc = Nokogiri::HTML(stories(project, params[:api_key], "state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}"))
  
@@ -92,7 +92,7 @@ get '/status/:projects/:api_key' do
   @backlog_stories = Array.new
   @icebox = Array.new
 
-  params[:projects].split(',').each do |project|
+  params[:projects].split(',').uniq.each do |project|
 
     #Work done in last iteration
     if(include_done)
