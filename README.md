@@ -12,3 +12,10 @@ of stories that were created over the same time period, and puts them in red if 
 if you finished more than you created.
 
 ![Sample Report](http://content.screencast.com/users/tlianza/folders/Jing/media/4086349d-8765-4093-9cbf-9303f55ae06c/2011-02-19_1355.png)
+
+
+## Setup
+1. git clone git@github.com:wishpot/pivotal-tracker-reports.git
+2. cd pivotal-tracker-reports
+3. bundle install
+4. ruby -rubygems default.rb
