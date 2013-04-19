@@ -5,9 +5,10 @@ require 'nokogiri'
 require 'net/http'
 require 'uri'
 require 'cgi'
-require 'models/story.rb'
-require 'models/owner_work.rb'
-require 'lib/helper.rb'
+require 'require_relative'
+require_relative 'models/story.rb'
+require_relative 'models/owner_work.rb'
+require_relative 'lib/helper.rb'
 require 'date' #this is mac-specific, which doesn't require the standard libs.
 
 before do

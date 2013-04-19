@@ -15,7 +15,7 @@ if you finished more than you created.
 
 
 ## Setup
-1. git clone git@github.com:wishpot/pivotal-tracker-reports.git
+1. git clone git://github.com/wishpot/pivotal-tracker-reports.git
 2. cd pivotal-tracker-reports
 3. bundle install
 4. ruby -rubygems default.rb
