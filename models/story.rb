@@ -1,11 +1,11 @@
 
 class Story
-attr_reader :id, :title, :description, :url, :accepted_at, :requested_by, :owned_by, :created_at, :story_type, :current_state, :estimate, :updated_at, :labels
+attr_reader :story_id, :title, :description, :url, :accepted_at, :requested_by, :owned_by, :created_at, :story_type, :current_state, :estimate, :updated_at, :labels
 attr_accessor :estimated_date
 
 # Builds a story given an XML node from pivotal tracker
 def from_xml(node)
-  @id = node.xpath('id')[0].content
+  @story_id = node.xpath('id')[0].content
   @title = node.xpath('name')[0].content
   @description = node.xpath('description')[0].content unless node.xpath('description')[0].nil?
   @url = node.xpath('url')[0].content
@@ -61,12 +61,12 @@ def self.top_labels(story_array, limit=3)
   story_array.each { |story|
     if story.labels.nil?
       @labels['z_uncategorized'] = Array.new unless @labels.has_key?('z_uncategorized')
-      @labels['z_uncategorized'] << story.id 
+      @labels['z_uncategorized'] << story.story_id 
       @label_weights['z_uncategorized'] +=1
     else
       story.labels.each do |l| 
         @labels[l] = Array.new unless @labels.has_key?(l)
-        @labels[l] << story.id 
+        @labels[l] << story.story_id 
         @label_weights[l] += 1.to_f/story.labels.count
       end
     end

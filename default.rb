@@ -93,6 +93,10 @@ get '/status/:projects/:api_key' do
   @backlog_stories = Array.new
   @icebox = Array.new
 
+  # Used to weed stories out of the list to-be prioritized because
+  # we know they're already on the schedule.
+  @scheduled_story_ids = Set.new
+
   params[:projects].split(',').uniq.each do |project|
 
     #Work done in last iteration
@@ -105,6 +109,7 @@ get '/status/:projects/:api_key' do
           @done_stories << story
           @done_points += story.estimate  
         end
+        @scheduled_story_ids.add(story.story_id)
       end
     end
 
@@ -119,20 +124,23 @@ get '/status/:projects/:api_key' do
           @current_stories << story
           @current_points += story.estimate
         end
-      end
-    end
-    
-    #Grab the recently logged stories
-    begin
-      doc = Nokogiri::HTML(created_since(@start_date, project, params[:api_key], 'state:unscheduled'))
-      doc.xpath('//stories//story').each do |s|
-        @recently_logged_stories << Story.new.from_xml(s)
+        @scheduled_story_ids.add(story.story_id)
       end
     end
 
     #Grab the rest of the backlog
     if include_backlog
       @backlog_stories = parse_stories_from_iterations(iterations(project, params[:api_key], 3, 1))
+      @backlog_stories.each { |story| @scheduled_story_ids.add(story.story_id) }
+    end
+
+    #Grab the recently logged stories
+    begin
+      doc = Nokogiri::HTML(created_since(@start_date, project, params[:api_key], 'state:unscheduled'))
+      doc.xpath('//stories//story').each do |s|
+        story = Story.new.from_xml(s)
+        @recently_logged_stories << story unless @scheduled_story_ids.include?(story.story_id)
+      end
     end
 
     #Grab the icebox
