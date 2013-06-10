@@ -27,6 +27,9 @@
 		.started {
 			border-bottom: 1px solid #eeeeee;
 		}
+		.big { 
+			font-weight: bold;
+		}
 	</style>
 </head>
 
@@ -39,6 +42,7 @@
 				<span class="ng-model">
 					<span>{{story.requested_by}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> ({{getOwner(story)}})
 					<button title="Move to top of backlog, ahead of &quot;{{firstInBacklog[story.project_id].name}}&quot;" ng-model="story" ng-click="moveTop(story)">top</button>
+					<button title="Move to middle of backlog, after &quot;{{middleInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveMiddle(story)">mid</button>
 					<button title="Move to bottom of backlog, after &quot;{{lastInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveBottom(story)">bottom</button>
 				</span>
 			</li>
@@ -50,7 +54,7 @@
 	      <h3>{{user.name}} <span title="{{user.points}} points">({{user.stories.length}})</span></h3>
 	      <ol class="stories">
 	      	<li ng-repeat="story in user.stories" class="{{story.current_state}} {{story.story_type}}">
-	      		<a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a>
+	      		<a href="{{story.url}}" title="{{story.description}}" target="_blank" ng-class="{big: (story.estimate > 1)}">{{story.name}}</a>
 	      		<button ng-show="isUnstarted(story)" title="Move to icebox" ng-click="ice(story)">ice</button>
 	      	</li>
 	      </ol>

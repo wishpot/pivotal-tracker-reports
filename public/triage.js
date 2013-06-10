@@ -53,6 +53,7 @@ function TriageCtl($scope, $http, $location, $q) {
 
 	//these are hashed by project id
 	$scope.firstInBacklog = {};
+	$scope.middleInBacklog = {};
 	$scope.lastInBacklog = {};
 	$scope.firstInIcebox = {};
 
@@ -70,6 +71,9 @@ function TriageCtl($scope, $http, $location, $q) {
 			if(null == $scope.lastInBacklog[project]) {
 				$scope.lastInBacklog[project] = stories[stories.length-1];
 			}
+			if(null == $scope.middleInBacklog[project]) {
+				$scope.middleInBacklog[project] = $scope.lastInBacklog[project];
+			}
 		}));
 
 		//backlog work
@@ -77,6 +81,7 @@ function TriageCtl($scope, $http, $location, $q) {
 			var stories = addStoriesToObj($scope.currentByUser, data.iterations);
 			$scope.firstInBacklog[project] = stories[0];
 			$scope.lastInBacklog[project] = stories[stories.length-1];
+			$scope.middleInBacklog[project] = stories[stories.length/2];
 		}));
 
 		//recently scheduled stories
@@ -112,26 +117,27 @@ function TriageCtl($scope, $http, $location, $q) {
 		return _.find($scope.currentByUser, function(c){return c.name==userName;});
 	}
 
-	$scope.moveTop = function(story) {
-		move(story, 'before', $scope.firstInBacklog[story.project_id])
+	function promoteRecent(story, direction, target) {
+		return move(story, direction, target)
 			.success(function(data){
 				deleteFromCollectionById($scope.recentlyScheduled, story.id);
 				getUserStories(getOwner(story)).stories.push(story);
 			})
 			.error(function(data) {
 				alert("Fail: "+data);
-			})
+			});
+	}
+
+	$scope.moveTop = function(story) {
+		return promoteRecent(story, 'before', $scope.firstInBacklog[story.project_id]);
 	}
 
 	$scope.moveBottom= function(story) {
-		move(story, 'after', $scope.lastInBacklog[story.project_id])
-			.success(function(data){
-				deleteFromCollectionById($scope.recentlyScheduled, story.id);
-				getUserStories(getOwner(story)).stories.push(story);
-			})
-			.error(function(data) {
-				alert("Fail: "+data);
-			})
+		return promoteRecent(story, 'after', $scope.lastInBacklog[story.project_id]);
+	}
+
+	$scope.moveMiddle= function(story) {
+		return promoteRecent(story, 'after', $scope.middleInBacklog[story.project_id]);
 	}
 
 	$scope.ice = function(story) {
