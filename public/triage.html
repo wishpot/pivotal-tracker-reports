@@ -5,83 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
 	<script src="http://underscorejs.org/underscore-min.js"></script>
-	<script>
-	var qs = (function(a) {
-	    if (a == "") return {};
-	    var b = {};
-	    for (var i = 0; i < a.length; ++i)
-	    {
-	        var p=a[i].split('=');
-	        if (p.length != 2) continue;
-	        b[p[0]] = decodeURIComponent(p[1].replace(/\+/g, " "));
-	    }
-	    return b;
-	})(window.location.search.substr(1).split('&'));
-
-	function TriageCtl($scope, $http, $location, $q) {
-
-		var projects = qs['projects'].split(',');
-		var sinceDate = new Date();
-		sinceDate.setDate(sinceDate.getDate() - (qs['days_ago'] || 7));
-		var dateStr = (sinceDate.getMonth()+1)+"/"+sinceDate.getDate()+"/"+sinceDate.getFullYear();
-
-		function apiCall(project, path, params, callback) {
-			return $http.jsonp('http://xml2json.heroku.com?url='+encodeURIComponent('https://www.pivotaltracker.com/services/v3/projects/'+project+path+'?token='+qs['api_key']+'&'+params)+'&callback=JSON_CALLBACK').success(callback);
-		}
-
-		function sortStory(story) {
-			return story.current_state;
-		}
-
-		function addStoriesToObj(obj, iterations) {
-			 _.each(iterations, function(iteration){
-			    _.each(iteration.stories, function(story) {
-			    	if(null == obj[story.owned_by]) {
-			    		obj[story.owned_by] = {};
-			    		obj[story.owned_by].name = story.owned_by;
-			    		obj[story.owned_by].stories = new Array();
-			    	}
-
-			    	if(story.current_state != 'accepted') {
-			    		obj[story.owned_by].stories.push(story);
-			    	}
-			    });
-			});
-		}
-
-		$scope.currentByUser = {};
- 		$scope.recentlyScheduled = new Array();
-
- 		var scheduledStoryCalls = new Array();
-
-		_.each(projects, function(project) {
-
-			//current work
-			scheduledStoryCalls.push(apiCall(project, '/iterations/current', '', function(data) {
-				addStoriesToObj($scope.currentByUser, data.iterations);
-			}));
-
-			//backlog work
-			scheduledStoryCalls.push(apiCall(project, '/iterations/current_backlog', 'limit=3&offset=1', function(data) {
-				addStoriesToObj($scope.currentByUser, data.iterations);
-			}));
-
-			//recently scheduled stories
-			apiCall(project, '/stories', 'filter=state:unscheduled%20created_since:'+dateStr, function(data) {
-			   $scope.recentlyScheduled = $scope.recentlyScheduled.concat(data.stories);		 
-			});
-
-		});
-
-		$q.all(scheduledStoryCalls).then(function(data){
-			_.each($scope.currentByUser, function(u){
-		    	u.stories = _.sortBy(u.stories, sortStory);
-		    	u.points  = _.reduce(u.stories, function(sum, story){ return sum + (story.estimate||0); }, 0);
-		    });
-		    $scope.currentByUser = _.sortBy( $scope.currentByUser, function(u) {return -1 * u.stories.length});
-		})
-	}
-	</script>
+	<script src="/triage.js"></script>
 	<style type="text/css">
 		body {font-size: small; }
 		.person { float: left; width: 150px; overflow: scroll; padding-right: .5em;}
@@ -109,10 +33,14 @@
 <body ng-controller="TriageCtl">
 	<h1>Bug Triage!</h1>
 	<div>
-		<h2>Recently Logged Stories</h2>
+		<h2>{{recentlyScheduled.length}} Recently Logged Stories</h2>
 		<ul>
 			<li ng-repeat="story in recentlyScheduled">
-				<span>{{story.requested_by}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> ({{story.owned_by}})
+				<span class="ng-model">
+					<span>{{story.requested_by}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> ({{getOwner(story)}})
+					<button title="Move to top of backlog, ahead of &quot;{{firstInBacklog[story.project_id].name}}&quot;" ng-model="story" ng-click="moveTop(story)">top</button>
+					<button title="Move to bottom of backlog, after &quot;{{lastInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveBottom(story)">bottom</button>
+				</span>
 			</li>
 		</ul>
 	</div>
@@ -123,6 +51,7 @@
 	      <ol class="stories">
 	      	<li ng-repeat="story in user.stories" class="{{story.current_state}} {{story.story_type}}">
 	      		<a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a>
+	      		<button ng-show="isUnstarted(story)" title="Move to icebox" ng-click="ice(story)">ice</button>
 	      	</li>
 	      </ol>
 	    </div>

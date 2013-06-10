@@ -18,6 +18,17 @@ before do
    @pt_uri = URI.parse('http://www.pivotaltracker.com/')
 end
 
+post '/api/:project/:api_key/move/:story_id/:direction/:other_id' do
+  req = Net::HTTP::Post.new(
+      "/services/v3/projects/#{params[:project]}/stories/#{params[:story_id]}/moves?move\[move\]=#{params[:direction]}&move\[target\]=#{params[:other_id]}", 
+      {'X-TrackerToken'=>params[:api_key]}
+    )
+    res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
+      http.request(req)
+    }
+    return res.body
+end
+
 get '/:projects/:api_key' do
     @title = 'Accepted Stories Report'
     @stories = Hash.new
