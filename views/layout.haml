@@ -8,4 +8,6 @@
         %a{:href=>"/#{params[:projects]}/#{params[:api_key]}", :title=>"Show activity from #{@start_date} to now"} Last Week
       %li 
         %a{:href=>"/status/#{params[:projects]}/#{params[:api_key]}"} Status
+      %li 
+        %a{:href=>"/triage.html?projects=#{params[:projects]}&api_key=#{params[:api_key]}"} Triage
     =yield
