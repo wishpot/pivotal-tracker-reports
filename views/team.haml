@@ -1,0 +1,89 @@
+%h1{:class=>'title'}
+  %span{:title=>"Teamstuff"} Ador Team View 
+%br
+%br
+
+%table.mapkey
+  %tr
+    %td
+      %h3 Teams
+    %td
+      %br
+    %td 
+      %br
+    %td 
+      %h3 Status Icons
+  %tr
+    %td
+      %a{:href=>"/team/core/#{params[:projects]}/#{params[:api_key]}"} Core (TL,KC,DT,MB,PN)
+    %td
+      %br
+    %td 
+      %img{:src=>status_icon("critical")} =  Critical
+    %td 
+      %img{:src=>status_icon("accepted")} =  Accepted
+    %td 
+      %img{:src=>status_icon("finished")} =  Finished
+    %td 
+      %img{:src=>status_icon("unstarted")} =  Unstarted
+  %tr
+    %td
+      %a{:href=>"/team/apps/#{params[:projects]}/#{params[:api_key]}"} Apps (JE,DS,TD)
+    %td
+      %br
+    %td
+      %img{:src=>status_icon("keystone")} =  Keystone
+    %td
+      %img{:src=>status_icon("delivered")} =  Delivered
+    %td
+      %img{:src=>status_icon("started")} =  Started
+    %td
+      %img{:src=>status_icon("unscheduled")} =  Unscheduled
+  %tr
+    %td
+      %a{:href=>"/team/UX/#{params[:projects]}/#{params[:api_key]}"} UX (PD,NR,JK,ML)
+    %td
+      %br
+    %td
+      %br
+    %td
+      %img{:src=>status_icon("rejected")} =  Rejected
+
+  %tr
+    %td
+      %a{:href=>"/team/other/#{params[:projects]}/#{params[:api_key]}"} Other (MC,Q,other)
+
+%br 
+%h3 #{@current_group}
+
+- @members.each do |name,member|
+  - next if member.feature_count.zero?
+  - next unless member.group.eql?(@current_group) || @current_group.eql?("all")
+  %br
+  %h2 #{member.moniker} 
+  %br
+  %table.epic
+    %tr
+      %td
+        %img{:src=>type_to_img("feature"), :title=>"feature"}  Features: #{member.feature_count}
+      %td
+        %img{:src=>type_to_img("bug"), :title=>"bug"}   Bugs:  #{member.bug_count}
+    - max_rows = [[member.bug_count, member.feature_count].max, 15].min
+    - (0..max_rows).each do |i|
+      - feature = member.features[i]
+      - bug = member.bugs[i]
+      %tr
+        %td
+          - if !feature.nil?  
+            %img{:src=>story_to_status_icon(feature), :title=>feature.story_type}
+            =friendly_title(feature)
+            %br
+            .people [Updated #{feature.updated_at.strftime("%d %b")}]
+        %td
+          - if !bug.nil?
+            %img{:src=>story_to_status_icon(bug), :title=>bug.story_type}
+            =friendly_title(bug)
+            %br
+            .people [Updated #{bug.updated_at.strftime("%d %b")}]
+
+

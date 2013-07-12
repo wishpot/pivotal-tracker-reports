@@ -1,11 +1,27 @@
 
 #Given a story type, returns the image name for it
 def type_to_img(story_type)
-  return "/#{story_type}.png"
+	return "/#{story_type}.png"
 end
 
+
+def status_icon(state)
+	"/st-" + state + ".png"
+end
+
+
+def story_to_status_icon(story)
+	if story.current_state != "accepted" && !story.labels.nil?
+		return status_icon("critical") if story.labels.include? "critical" 
+		return status_icon("keystone") if story.labels.include? "keystone"
+	end
+	return status_icon(story.current_state)
+end
+
+
+
 def friendly_title(story)
-	"<a href=\"#{story.url}\" target=\"_blank\" title=\"#{CGI.escapeHTML(story.description)}\">#{story.title}</a>"
+	"<a href=\"#{story.url}\" target=\"_blank\" title=\"#{CGI.escapeHTML(story.description[0...80])}\">#{story.title}</a>"
 end
 
 #Fetches this week's work - returns the body of the API response
@@ -29,7 +45,7 @@ def _iterations(path, project, api_key, limit=nil, skip=nil)
 
 	req = Net::HTTP::Get.new( url, {'X-TrackerToken'=>api_key} )
 	res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
-	  http.request(req)
+		http.request(req)
 	}
 	return res.body
 end
@@ -40,6 +56,10 @@ end
 
 def created_since(date, project, api_key, filter='')
 	return stories(project, api_key, "created_since:#{date.strftime("%m/%d/%Y")}%20#{filter}")
+end
+
+def modified_since(date, project, api_key, filter='')
+	return stories(project, api_key, "modified_since:#{date.strftime("%m/%d/%Y")}%20#{filter}")
 end
 
 def parse_stories_from_iterations(html)
@@ -63,11 +83,20 @@ end
 #This wraps the story search
 def stories(project, api_key, filter='')
 	req = Net::HTTP::Get.new(
-      "/services/v3/projects/#{project}/stories?filter=#{filter}", 
-      {'X-TrackerToken'=>api_key}
-    )
-    res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
-      http.request(req)
-    }
-    return res.body
+			"/services/v3/projects/#{project}/stories?filter=#{filter}", 
+			{'X-TrackerToken'=>api_key}
+		)
+		res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
+			http.request(req)
+		}
+		return res.body
+end
+
+
+
+#Wraps any XML search
+def pt_get_body(url, api_key) 
+			 req = Net::HTTP::Get.new( url, {'X-TrackerToken'=>api_key} )
+			 res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http| http.request(req) }
+			 return Nokogiri::HTML(res.body)
 end
