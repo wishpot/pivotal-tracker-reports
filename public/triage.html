@@ -1,0 +1,65 @@
+<html lang="en" ng-app>
+
+<head>
+	<title>Triage</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+	<script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular.min.js"></script>
+	<script src="http://underscorejs.org/underscore-min.js"></script>
+	<script src="/triage.js"></script>
+	<style type="text/css">
+		body {font-size: small; }
+		.person { float: left; width: 150px; overflow: scroll; padding-right: .5em;}
+		.person ol {padding: 0; list-style-type: none;}
+		.person li {padding: .25em;}
+		.accepted { 
+			background-color: #daebcf;
+			border-top: 1px solid #eefce2;
+			border-bottom: 1px solid #c3d5b4;
+		}
+		.delivered, .finished {
+			background-color: #f3f3d1;
+			border-bottom: 1px solid #dbdbb0;
+		}
+		.unstarted {
+			background-color: #eeeeee;
+			border-bottom: 1px solid #C0C0C0;
+		}
+		.started {
+			border-bottom: 1px solid #eeeeee;
+		}
+		.big { 
+			font-weight: bold;
+		}
+	</style>
+</head>
+
+<body ng-controller="TriageCtl">
+	<h1>Bug Triage!</h1>
+	<div>
+		<h2>{{recentlyScheduled.length}} Recently Logged Stories</h2>
+		<ul>
+			<li ng-repeat="story in recentlyScheduled">
+				<span class="ng-model">
+					<span>{{story.requested_by}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> ({{getOwner(story)}})
+					<button title="Move to top of backlog, ahead of &quot;{{firstInBacklog[story.project_id].name}}&quot;" ng-model="story" ng-click="moveTop(story)">top</button>
+					<button title="Move to middle of backlog, after &quot;{{middleInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveMiddle(story)">mid</button>
+					<button title="Move to bottom of backlog, after &quot;{{lastInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveBottom(story)">bottom</button>
+				</span>
+			</li>
+		</ul>
+	</div>
+	<div>
+		<h2>Current Work</h2>
+	    <div class="person" ng-repeat="user in currentByUser">
+	      <h3>{{user.name}} <span title="{{user.points}} points">({{user.stories.length}})</span></h3>
+	      <ol class="stories">
+	      	<li ng-repeat="story in user.stories" class="{{story.current_state}} {{story.story_type}}">
+	      		<a href="{{story.url}}" title="{{story.description}}" target="_blank" ng-class="{big: (story.estimate > 1)}">{{story.name}}</a>
+	      		<button ng-show="isUnstarted(story)" title="Move to icebox" ng-click="ice(story)">ice</button>
+	      	</li>
+	      </ol>
+	    </div>
+	  </div>
+</body>
+
+</html>

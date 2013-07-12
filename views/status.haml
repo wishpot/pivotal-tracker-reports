@@ -134,5 +134,5 @@ These stories were logged within the last #{@days_ago} days, and may need to be 
 %ul.unstyled
   - for story in @recently_logged_stories.sort{|a,b| a.created_at <=> b.created_at}
     %li  
-      %img{:src=>type_to_img(story.story_type), :title=>story.story_type} 
+      %img{:src=>type_to_img(story.story_type), :title=>story.story_type+' assigned to: '+story.owned_by} 
       #{story.requested_by} on #{story.created_at.strftime("%b %d")}: #{friendly_title(story)}
