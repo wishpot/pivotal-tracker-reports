@@ -12,3 +12,4 @@ JK => UX
 MC => other
 Q => other
 NO => other
+HI => other
