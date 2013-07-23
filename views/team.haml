@@ -54,7 +54,7 @@
       %a{:href=>"/team/other/#{params[:projects]}/#{params[:api_key]}"} Other (MC,Q,other)
 
 %br 
-%h3 #{@current_group}
+%h3 #{@current_group} - #{@days_ago} days history
 
 - @members.each do |name,member|
   - next if member.feature_count.zero?

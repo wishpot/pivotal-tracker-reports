@@ -175,7 +175,8 @@ end
 
 get '/epics/:projects/:api_key' do
 
-	@start_date = Date.today-28	 # 4 weeks back for now
+	@days_ago = 28
+	@start_date = Date.today - @days_ago 
 	@epics_bugs = Hash.new();
 	@epics_features = Hash.new();
 	params[:projects].split(',').uniq.each { |project| # website=744405, apps=827127
@@ -205,6 +206,7 @@ end
 
 get '/team/:group/:projects/:api_key' do
 
+	@days_ago = 40
 	@members = Hash.new(0)
 	params[:projects].split(',').uniq.each { |project|
 
@@ -223,7 +225,7 @@ get '/team/:group/:projects/:api_key' do
 			@members[@nobody.name] = @nobody
 		end
 
-		@start_date = Date.today-40
+		@start_date = Date.today - @days_ago
 		url = burl + "/stories?filter=modified_since:#{@start_date}.strftime('%m/%d/%Y')"
 		doc = pt_get_body(url, params[:api_key])
 		doc.xpath('//stories//story').each { |xml_story|
