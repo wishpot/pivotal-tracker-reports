@@ -175,7 +175,7 @@ end
 
 get '/epics/:projects/:api_key' do
 
-	@month_ago = Date.today-28	 # 4 weeks back for now
+	@start_date = Date.today-28	 # 4 weeks back for now
 	@epics_bugs = Hash.new();
 	@epics_features = Hash.new();
 	params[:projects].split(',').uniq.each { |project| # website=744405, apps=827127
@@ -183,7 +183,7 @@ get '/epics/:projects/:api_key' do
 		@epics.each { |epicname|
 			@epics_bugs[epicname] = Array.new()
 			@epics_features[epicname] = Array.new()
-			@filter="label:\"#{epicname}\"%20modified_since:#{@month_ago.strftime("%m/%d/%Y")}"
+			@filter="label:\"#{epicname}\"%20modified_since:#{@start_date.strftime("%m/%d/%Y")}"
 			@filter.gsub!(/ /, "%20")
 			doc = Nokogiri::HTML(stories(project, params[:api_key], @filter))
 			doc.xpath('//stories//story').each { |s|
@@ -223,8 +223,8 @@ get '/team/:group/:projects/:api_key' do
 			@members[@nobody.name] = @nobody
 		end
 
-		@month_ago = Date.today-30
-		url = burl + "/stories?filter=modified_since:#{@month_ago}.strftime('%m/%d/%Y')"
+		@start_date = Date.today-40
+		url = burl + "/stories?filter=modified_since:#{@start_date}.strftime('%m/%d/%Y')"
 		doc = pt_get_body(url, params[:api_key])
 		doc.xpath('//stories//story').each { |xml_story|
 			story = Story.new.from_xml(xml_story)

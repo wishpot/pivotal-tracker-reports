@@ -1,6 +1,6 @@
 feed v2
-search-v4
-search-v5
-tagger-v5
+search-v6
+tagger-v6
 stylerank-v1
 sharing
+colorsearch-v1
