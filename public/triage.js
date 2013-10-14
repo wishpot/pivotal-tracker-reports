@@ -91,7 +91,13 @@ function TriageCtl($scope, $http, $location, $q) {
 
 		//get the top of the icebox
 		apiCall(project, '/stories', 'limit=1&filter=state:unscheduled', function(data) {
-		   $scope.firstInIcebox[project] = data.stories[0];		 
+			if(data.stories === undefined) {
+				alert("Error getting icebox.  Details in console.log.");
+				console.log(data);
+			} else {
+				$scope.firstInIcebox[project] = data.stories[0];	
+			}
+		   	 
 		});
 	});
 
