@@ -40,7 +40,7 @@
 		<ul>
 			<li ng-repeat="story in recentlyScheduled">
 				<span class="ng-model">
-					<span>{{story.requested_by}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> ({{getOwner(story)}})
+					<span>{{getOwnerInitials(story.requested_by_id)}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> ({{getOwnerInitials(story.owned_by_id)}})
 					<button title="Move to top of backlog, ahead of &quot;{{firstInBacklog[story.project_id].name}}&quot;" ng-model="story" ng-click="moveTop(story)">top</button>
 					<button title="Move to middle of backlog, after &quot;{{middleInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveMiddle(story)">mid</button>
 					<button title="Move to bottom of backlog, after &quot;{{lastInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveBottom(story)">bottom</button>
@@ -51,7 +51,7 @@
 	<div>
 		<h2>Current Work</h2>
 	    <div class="person" ng-repeat="user in currentByUser">
-	      <h3>{{user.name}} <span title="{{user.points}} points">({{user.stories.length}})</span></h3>
+	      <h3>{{getOwnerName(user.user_id)}} <span title="{{user.points}} points">({{user.stories.length}})</span></h3>
 	      <ol class="stories">
 	      	<li ng-repeat="story in user.stories" class="{{story.current_state}} {{story.story_type}}">
 	      		<a href="{{story.url}}" title="{{story.description}}" target="_blank" ng-class="{big: (story.estimate > 1)}">{{story.name}}</a>
