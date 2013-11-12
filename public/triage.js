@@ -168,4 +168,21 @@ function TriageCtl($scope, $http, $location, $q) {
 			})
 	}
 
+	$scope.$watch('recentlyScheduled', function(newValue, oldValue) {
+		if(undefined === oldValue) { return; }
+	  _.each(newValue, function(e,i){
+	  	if(oldValue[i] && e.owned_by_id && e.owned_by_id != oldValue[i].owned_by_id) {
+	  		//console.log("SHOULD CHANGE OWNER OF STORY "+e.id+" TO: "+e.owned_by_id+" from "+oldValue[i].owned_by_id);
+	  		$http.post('/api/'+e.project_id+'/'+qs['api_key']+'/assign/'+e.id+'/'+e.owned_by_id, {})
+	  			.success(
+					function(data){
+						console.log("Updated owner of story: "+e.id+" - "+data);
+					}
+				).error(function(data) {
+					alert("Fail: "+data);
+				});
+	  	}
+	  });
+	}, true);
+
 }

@@ -3,6 +3,7 @@ require 'sinatra/reloader' if development?
 require 'haml'
 require 'nokogiri'
 require 'net/http'
+require 'net/https'
 require 'uri'
 require 'cgi'
 require 'require_relative'
@@ -27,6 +28,18 @@ post '/api/:project/:api_key/move/:story_id/:direction/:other_id' do
       http.request(req)
     }
     return res.body
+end
+
+post '/api/:project/:api_key/assign/:story_id/:user_id' do
+
+  http = Net::HTTP.new(@pt_uri.host, 443)
+  http.use_ssl = true
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE 
+  req = Net::HTTP::Put.new(
+      "/services/v5/projects/#{params[:project]}/stories/#{params[:story_id]}?owned_by_id=#{params[:user_id]}", 
+      { 'X-TrackerToken'=>params[:api_key],'Content-Length'=>'0' }
+    )
+  return http.request(req).body
 end
 
 get '/:projects/:api_key' do

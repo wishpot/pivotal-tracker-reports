@@ -40,10 +40,21 @@
 		<ul>
 			<li ng-repeat="story in recentlyScheduled">
 				<span class="ng-model">
-					<span>{{getOwnerInitials(story.requested_by_id)}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> ({{getOwnerInitials(story.owned_by_id)}})
-					<button title="Move to top of backlog, ahead of &quot;{{firstInBacklog[story.project_id].name}}&quot;" ng-model="story" ng-click="moveTop(story)">top</button>
-					<button title="Move to middle of backlog, after &quot;{{middleInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveMiddle(story)">mid</button>
-					<button title="Move to bottom of backlog, after &quot;{{lastInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveBottom(story)">bottom</button>
+					<span>{{getOwnerInitials(story.requested_by_id)}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> 
+					
+					<select class="ownerChange"
+							ng-model="story.owned_by_id"
+							ng-options="u.person.id as u.person.initials for u in members[story.project_id]"
+						>
+					</select>
+					
+					<span class="actions">
+						[
+						<button title="Move to top of backlog, ahead of &quot;{{firstInBacklog[story.project_id].name}}&quot;" ng-model="story" ng-click="moveTop(story)">top</button>
+						<button title="Move to middle of backlog, after &quot;{{middleInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveMiddle(story)">mid</button>
+						<button title="Move to bottom of backlog, after &quot;{{lastInBacklog[story.project_id].name}}&quot;"  ng-model="story" ng-click="moveBottom(story)">bottom</button>
+						]
+					</span>
 				</span>
 			</li>
 		</ul>
