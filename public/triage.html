@@ -1,4 +1,4 @@
-<html lang="en" ng-app>
+<html lang="en" ng-app="triageApp">
 
 <head>
 	<title>Triage</title>
@@ -36,10 +36,11 @@
 <body ng-controller="TriageCtl">
 	<h1>Bug Triage!</h1>
 	<div>
-		<h2>{{recentlyScheduled.length}} Recently Logged Stories</h2>
+		<h2>{{recentlyScheduled.length}} Recently Modified Stories</h2>
 		<ul>
 			<li ng-repeat="story in recentlyScheduled">
 				<span class="ng-model">
+					<span title="{{story.created_at}}">{{story.created_at|date:'M/dd'}}</span>
 					<span>{{getOwnerInitials(story.requested_by_id)}}</span>: <a href="{{story.url}}" title="{{story.description}}" target="_blank">{{story.name}}</a> 
 					
 					<select class="ownerChange"

@@ -1,3 +1,5 @@
+'use strict';
+
 var qs = (function(a) {
     if (a == "") return {};
     var b = {};
@@ -10,7 +12,10 @@ var qs = (function(a) {
     return b;
 })(window.location.search.substr(1).split('&'));
 
-function TriageCtl($scope, $http, $location, $q) {
+
+var triageApp = angular.module('triageApp', []);
+
+triageApp.controller('TriageCtl', function ($scope, $http, $location, $q) {
 
 	var projects = qs['projects'].split(',');
 	var sinceDate = new Date();
@@ -101,7 +106,7 @@ function TriageCtl($scope, $http, $location, $q) {
 		);
 
 		//recently scheduled stories
-		$http.get(APIv5PREFIX+'/projects/'+project+'/stories?filter=state:unscheduled%20created_since:'+dateStr+'&token='+qs['api_key']).success(function(data){
+		$http.get(APIv5PREFIX+'/projects/'+project+'/stories?filter=state:unscheduled%20modified_since:'+dateStr+'&token='+qs['api_key']).success(function(data){
 		   $scope.recentlyScheduled = $scope.recentlyScheduled.concat(data);
 		});
 
@@ -185,4 +190,4 @@ function TriageCtl($scope, $http, $location, $q) {
 	  });
 	}, true);
 
-}
+});
