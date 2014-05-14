@@ -9,5 +9,9 @@
       %li 
         %a{:href=>"/status/#{params[:projects]}/#{params[:api_key]}"} Status
       %li 
+        %a{:href=>"/epics/#{params[:projects]}/#{params[:api_key]}"} Epics
+      %li 
+        %a{:href=>"/team/all/#{params[:projects]}/#{params[:api_key]}"} Team
+      %li 
         %a{:href=>"/triage.html?projects=#{params[:projects]}&api_key=#{params[:api_key]}"} Triage
     =yield

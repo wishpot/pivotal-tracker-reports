@@ -57,3 +57,9 @@ table.work { font-size: 80%; }
 td h2 { background-color: #E9EAEE; padding: 1pt;}
 td .subtitle {background-color: #CCCFDB; display:block; text-align: right; padding: 1pt;}
 table.work td.state,td.owner {white-space:nowrap;}
+
+
+table.epic { table-layout:fixed; width:1400px; overflow: hidden; }
+table.team { table-layout:fixed; width:1400px; overflow: hidden; }
+table.mapkey { table-layout:fixed; width:1200px; overflow: hidden; margin-left:100px;  }
+#table.mapkey { table-layout:fixed; width:600px; overflow: hidden; margin-left:400px;  }

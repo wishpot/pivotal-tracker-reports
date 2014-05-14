@@ -1,0 +1,29 @@
+%h1{:class=>'title'} 
+  %span{:title=>"Epicstuff"} Epics 
+-#  %span{:title=>"Epicstuff"} Epics #{:projects}
+
+#summary
+
+- @epics_features.each do |epicname, epic_stories|
+  %br
+  %h2 #{epicname} 
+  %table.epic
+    - max_rows = [[@epics_features[epicname].count, @epics_bugs[epicname].count].max, 15].min
+    - (0..max_rows).each do |i|
+      - feature = @epics_features[epicname][i]
+      - bug = @epics_bugs[epicname][i]
+      %tr
+        %td
+          - if !feature.nil?  
+            %img{:src=>type_to_img(feature.story_type), :title=>feature.story_type}
+            =friendly_title(feature)
+            %br
+            .people #{feature.friendly_state.capitalize}  [#{feature.owned_by}, Created #{feature.created_at.strftime("%d %b")}]
+        %td
+          - if !bug.nil?
+            %img{:src=>type_to_img(bug.story_type), :title=>bug.story_type}
+            =friendly_title(bug)
+            %br
+            .people #{bug.friendly_state.capitalize}  [#{bug.owned_by}, Created #{bug.created_at.strftime("%d %b")}]
+
+

@@ -1,0 +1,6 @@
+responsive
+iphone-v1
+android-v1
+iphone-v2
+android-v2
+ipad-v1
