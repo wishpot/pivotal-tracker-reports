@@ -13,11 +13,11 @@
   .list-group
     - for work in @top_owners
       %a.list-group-item
-        %h4{:class=> ((work.story_count > 0 && work.points_count > 0) ? 'text-success' : 'text-danger')}= work.name
+        %h4{:class=> ((work.story_count > 0 && work.points_count > 0) ? 'text-success' : 'text-warning')}= work.name
         %p
-          %span{:class=>'badge '+(work.story_count > 0 ? 'alert-success' : 'alert-danger')}= work.story_count.to_s
+          %span{:class=>'badge '+(work.story_count > 0 ? 'alert-success' : 'alert-warning')}= work.story_count.to_s
           stories
-          %span{:class=>'badge '+(work.points_count > 0 ? 'alert-success' : 'alert-danger')}= work.points_count.to_s
+          %span{:class=>'badge '+(work.points_count > 0 ? 'alert-success' : 'alert-warning')}= work.points_count.to_s
           points
 - for label in @labels.keys.sort
   .label
@@ -41,13 +41,16 @@
             %span.state
               %span.text-success
                 %strong #{@upcoming_story_counts['accepted']}
-              Accepted = works.
+              Accepted (Works),
               %span.text-warning
                 %strong #{@upcoming_story_counts['finished']}
-              Finished = code complete, but not yet delivered.
+              Finished (Code Complete),
               %span.text-warning
                 %strong #{@upcoming_story_counts['delivered']}
-              Delivered = live, but not yet verified as fixed.
+              Delivered (Live),
+              %span.text-danger
+                %strong #{@upcoming_story_counts['rejected']}
+              Rejected (Bugs).
   - for story in @upcoming_stories
     %tr
       %td.center
@@ -58,6 +61,8 @@
           %span.glyphicon.glyphicon-thumbs-up.yellow
         - elsif story.friendly_state == "finished"
           %span.glyphicon.glyphicon-time.yellow
+        - elsif story.friendly_state == "rejected"
+          %span.glyphicon.glyphicon-remove.red
         / #{story.friendly_state.capitalize}
       %td
         %p

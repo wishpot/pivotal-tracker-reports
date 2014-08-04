@@ -20,6 +20,10 @@ body   {
   color: #FFCC33;
 }
 
+.red {
+  color: #A40606;
+}
+
 table td.owner {
   white-space: nowrap;
   text-align: center;

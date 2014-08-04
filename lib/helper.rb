@@ -87,24 +87,32 @@ end
 #This wraps the story search
 def stories(project, api_key, filter='')
   req = Net::HTTP::Get.new(
-    "/services/v3/projects/#{project}/stories?filter=#{filter}",
+    "/services/v5/projects/#{project}/stories?filter=#{filter}",
     {'X-TrackerToken'=>api_key}
   )
   res = http.request(req)
-  return res.body
+  return JSON.parse(res.body)
 end
 
+def memberships(project, api_key, filter='')
+  req = Net::HTTP::Get.new(
+    "/services/v5/projects/#{project}/memberships",
+    {'X-TrackerToken'=>api_key}
+  )
+  res = http.request(req)
+  return JSON.parse(res.body)
+end
 
 
 #Wraps any XML search
 def pt_get_body(url, api_key)
-  req = Net::HTTP::Get.new( url, {'X-TrackerToken'=>api_key} )
+  req = Net::HTTP::Get.new(url, {'X-TrackerToken'=>api_key} )
   res = res = http.request(req)
   return Nokogiri::HTML(res.body)
 end
 
 def pt_get_body_json(url, api_key)
-  req = Net::HTTP::Get.new( url, {'X-TrackerToken'=>api_key} )
+  req = Net::HTTP::Get.new(url, {'X-TrackerToken'=>api_key} )
   res = res = http.request(req)
   return JSON.parse(res.body)
 end

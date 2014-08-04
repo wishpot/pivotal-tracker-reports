@@ -14,7 +14,6 @@ require_relative 'models/member.rb'
 require_relative 'lib/helper.rb'
 require 'date' #this is mac-specific, which doesn't require the standard libs.
 
-
 before do
   @days_ago = params[:days_ago].to_i
   if params[:week] == "current"
@@ -56,6 +55,7 @@ get '/:projects/:api_key' do
     @labels = Hash.new
     @story_points = 0
     @owner_work = Hash.new
+    @owners = Hash.new
 
     #this simply assumes all stories are weighted the same, but if a story has multiple labels, it
     #splits it's weight across them.
@@ -67,16 +67,19 @@ get '/:projects/:api_key' do
     @upcoming_story_counts = Hash.new(0)
 
     params[:projects].split(',').uniq.each do |project|
-
-      doc = Nokogiri::HTML(stories(project, params[:api_key], "state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}"))
-
-      doc.xpath('//story').each do |s|
-        sid = s.xpath('id')[0].content
-        @stories[sid] = Story.new.from_xml(s)
-        @story_points += @stories[sid].estimate
-        @owner_work[@stories[sid].owned_by] ||= OwnerWork.new(@stories[sid].owned_by) and @owner_work[@stories[sid].owned_by].increment(@stories[sid].estimate)
+      memberships(project, params[:api_key]).each do | member |
+        @owners[member['person']['id']] = member['person']
       end
 
+      stories = stories(project, params[:api_key],
+        "state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}")
+
+      stories.each do |story|
+        sid = story['id']
+        @stories[sid] = Story.new.from_xml(story)
+        @story_points += @stories[sid].estimate
+        @owner_work[@stories[sid].owned_by(@owners)] ||= OwnerWork.new(@stories[sid].owned_by(@owners)) and @owner_work[@stories[sid].owned_by(@owners)].increment(@stories[sid].estimate)
+      end
 
       begin
         @created_stories += Story.count_stories_from_xml(Nokogiri::HTML(created_since(@start_date, project, params[:api_key])))
@@ -86,9 +89,10 @@ get '/:projects/:api_key' do
 
       #figure out which stories we expect to come this week
       begin
-        doc = Nokogiri::HTML(this_week(project, params[:api_key]))
-        doc.xpath('//stories//story').each do |s|
-          story = Story.new.from_xml(s)
+        stories = stories(project, params[:api_key],
+          "state:accepted,delivered,finished,rejected%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}")
+        stories.each do |story|
+          story = Story.new.from_xml(story)
           # if story.accepted_at.nil?
           @upcoming_stories << story
           @upcoming_story_counts[story.current_state] += 1
