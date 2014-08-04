@@ -15,7 +15,7 @@ require 'date' #this is mac-specific, which doesn't require the standard libs.
 
 
 before do
-   @days_ago = params[:days_ago].to_i 
+   @days_ago = params[:days_ago].to_i
    @days_ago = 7 if @days_ago < 1
    @start_date = Date.today-@days_ago
    @pt_uri = URI.parse('http://www.pivotaltracker.com/')
@@ -24,7 +24,7 @@ end
 
 post '/api/:project/:api_key/move/:story_id/:direction/:other_id' do
   req = Net::HTTP::Post.new(
-      "/services/v3/projects/#{params[:project]}/stories/#{params[:story_id]}/moves?move\[move\]=#{params[:direction]}&move\[target\]=#{params[:other_id]}", 
+      "/services/v3/projects/#{params[:project]}/stories/#{params[:story_id]}/moves?move\[move\]=#{params[:direction]}&move\[target\]=#{params[:other_id]}",
       {'X-TrackerToken'=>params[:api_key]}
     )
     res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
@@ -37,9 +37,9 @@ post '/api/:project/:api_key/assign/:story_id/:user_id' do
 
   http = Net::HTTP.new(@pt_uri.host, 443)
   http.use_ssl = true
-  http.verify_mode = OpenSSL::SSL::VERIFY_NONE 
+  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
   req = Net::HTTP::Put.new(
-      "/services/v5/projects/#{params[:project]}/stories/#{params[:story_id]}?owned_by_id=#{params[:user_id]}", 
+      "/services/v5/projects/#{params[:project]}/stories/#{params[:story_id]}?owned_by_id=#{params[:user_id]}",
       { 'X-TrackerToken'=>params[:api_key],'Content-Length'=>'0' }
     )
   return http.request(req).body
@@ -51,7 +51,7 @@ get '/:projects/:api_key' do
     @labels = Hash.new
     @story_points = 0
     @owner_work = Hash.new
-    
+
     #this simply assumes all stories are weighted the same, but if a story has multiple labels, it
     #splits it's weight across them.
     @label_weights = Hash.new(0)
@@ -64,21 +64,21 @@ get '/:projects/:api_key' do
     params[:projects].split(',').uniq.each do |project|
 
       doc = Nokogiri::HTML(stories(project, params[:api_key], "state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}"))
- 
-      doc.xpath('//story').each do |s| 
+
+      doc.xpath('//story').each do |s|
         sid = s.xpath('id')[0].content
         @stories[sid] = Story.new.from_xml(s)
         @story_points += @stories[sid].estimate
         @owner_work[@stories[sid].owned_by] ||= OwnerWork.new(@stories[sid].owned_by) and @owner_work[@stories[sid].owned_by].increment(@stories[sid].estimate)
       end
-      
-      
+
+
       begin
         @created_stories += Story.count_stories_from_xml(Nokogiri::HTML(created_since(@start_date, project, params[:api_key])))
         @improved = (@created_stories < @stories.count)
       rescue
       end
-      
+
       #figure out which stories we expect to come this week
       begin
         doc = Nokogiri::HTML(this_week(project, params[:api_key]))
@@ -93,11 +93,11 @@ get '/:projects/:api_key' do
     end
 
     @top_labels = Story.top_labels(@stories.values)
-    @top_owners = @owner_work.values.sort{|a,b| 
+    @top_owners = @owner_work.values.sort{|a,b|
       comp = (b.points_count <=> a.points_count )
-      comp.zero? ? (b.story_count <=> a.story_count ) : comp 
+      comp.zero? ? (b.story_count <=> a.story_count ) : comp
     }
-    
+
     haml :index
 end
 
@@ -128,13 +128,13 @@ get '/status/:projects/:api_key' do
 
     #Work done in last iteration
     if(include_done)
-       doc = Nokogiri::HTML(done(project, params[:api_key])) 
+       doc = Nokogiri::HTML(done(project, params[:api_key]))
        story_iteration_iterator(doc) do |story|
         if story.accepted_at.nil?
           @recently_delivered_by_owner[story.owned_by] ||= Array.new and @recently_delivered_by_owner[story.owned_by] << story
         else
           @done_stories << story
-          @done_points += story.estimate  
+          @done_points += story.estimate
         end
         @scheduled_story_ids.add(story.story_id)
       end
@@ -189,7 +189,7 @@ end
 get '/epics/:projects/:api_key' do
 
 	@days_ago = 28
-	@start_date = Date.today - @days_ago 
+	@start_date = Date.today - @days_ago
 	@epics_bugs = Hash.new();
 	@epics_features = Hash.new();
 	params[:projects].split(',').uniq.each { |project| # website=744405, apps=827127
@@ -202,10 +202,10 @@ get '/epics/:projects/:api_key' do
 			doc = Nokogiri::HTML(stories(project, params[:api_key], @filter))
 			doc.xpath('//stories//story').each { |s|
 				story = Story.new.from_xml(s)
-				if story.story_type.eql? "bug" 
-					 @epics_bugs[epicname] << story 
+				if story.story_type.eql? "bug"
+					 @epics_bugs[epicname] << story
 				else
-					 @epics_features[epicname] << story 
+					 @epics_features[epicname] << story
 				end
 			}
 		}
@@ -215,10 +215,7 @@ get '/epics/:projects/:api_key' do
 end
 
 
-
-
 get '/team/:group/:projects/:api_key' do
-
 	@days_ago = 40
 	@members = Hash.new(0)
 	params[:projects].split(',').uniq.each { |project|
@@ -243,7 +240,7 @@ get '/team/:group/:projects/:api_key' do
 		doc = pt_get_body(url, params[:api_key])
 		doc.xpath('//stories//story').each { |xml_story|
 			story = Story.new.from_xml(xml_story)
-			if @members[story.owned_by].nil? 
+			if @members[story.owned_by].nil?
 				next
 			end
 			@members[story.owned_by].add(story)

@@ -1,17 +1,15 @@
 %html
-  %head 
+  %head
     %link{:href=>'/styles.css', :rel=>'stylesheet', :type=>'text/css'}
     %title=@title
   %body
     %ol.nav
-      %li 
+      %li
         %a{:href=>"/#{params[:projects]}/#{params[:api_key]}", :title=>"Show activity from #{@start_date} to now"} Last Week
-      %li 
+      %li
         %a{:href=>"/status/#{params[:projects]}/#{params[:api_key]}"} Status
-      %li 
+      %li
         %a{:href=>"/epics/#{params[:projects]}/#{params[:api_key]}"} Epics
-      %li 
+      %li
         %a{:href=>"/team/all/#{params[:projects]}/#{params[:api_key]}"} Team
-      %li 
-        %a{:href=>"/triage.html?projects=#{params[:projects]}&api_key=#{params[:api_key]}"} Triage
     =yield
