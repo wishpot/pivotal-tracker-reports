@@ -1,12 +1,12 @@
-%h1{:class=>'title'} 
-  %span{:title=>"Epicstuff"} Epics 
+%h1{:class=>'title'}
+  %span{:title=>"Epicstuff"} Epics Updates Last 28 days
 -#  %span{:title=>"Epicstuff"} Epics #{:projects}
 
 #summary
 
 - @epics_features.each do |epicname, epic_stories|
   %br
-  %h2 #{epicname} 
+  %h2 #{epicname}
   %table.epic
     - max_rows = [[@epics_features[epicname].count, @epics_bugs[epicname].count].max, 15].min
     - (0..max_rows).each do |i|
@@ -14,7 +14,7 @@
       - bug = @epics_bugs[epicname][i]
       %tr
         %td
-          - if !feature.nil?  
+          - if !feature.nil?
             %img{:src=>type_to_img(feature.story_type), :title=>feature.story_type}
             =friendly_title(feature)
             %br

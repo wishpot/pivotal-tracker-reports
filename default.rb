@@ -7,6 +7,7 @@ require 'net/https'
 require 'uri'
 require 'cgi'
 require 'require_relative'
+require 'json'
 require_relative 'models/story.rb'
 require_relative 'models/owner_work.rb'
 require_relative 'models/member.rb'
@@ -15,33 +16,28 @@ require 'date' #this is mac-specific, which doesn't require the standard libs.
 
 
 before do
-   @days_ago = params[:days_ago].to_i
-   @days_ago = 7 if @days_ago < 1
-   @start_date = Date.today-@days_ago
-   @pt_uri = URI.parse('http://www.pivotaltracker.com/')
-	$testmode = 1
+  @days_ago = params[:days_ago].to_i
+  @days_ago = 7 if @days_ago < 1
+  @start_date = Date.today-@days_ago
+  @pt_uri = URI.parse('https://www.pivotaltracker.com/')
+  $testmode = 1
 end
 
 post '/api/:project/:api_key/move/:story_id/:direction/:other_id' do
   req = Net::HTTP::Post.new(
-      "/services/v3/projects/#{params[:project]}/stories/#{params[:story_id]}/moves?move\[move\]=#{params[:direction]}&move\[target\]=#{params[:other_id]}",
-      {'X-TrackerToken'=>params[:api_key]}
-    )
-    res = Net::HTTP.start(@pt_uri.host, @pt_uri.port) {|http|
-      http.request(req)
-    }
-    return res.body
+    "/services/v3/projects/#{params[:project]}/stories/#{params[:story_id]}/moves?move\[move\]=#{params[:direction]}&move\[target\]=#{params[:other_id]}",
+    {'X-TrackerToken'=>params[:api_key]}
+  )
+  res = http.request(req)
+  return res.body
 end
 
 post '/api/:project/:api_key/assign/:story_id/:user_id' do
-
-  http = Net::HTTP.new(@pt_uri.host, 443)
-  http.use_ssl = true
-  http.verify_mode = OpenSSL::SSL::VERIFY_NONE
   req = Net::HTTP::Put.new(
-      "/services/v5/projects/#{params[:project]}/stories/#{params[:story_id]}?owned_by_id=#{params[:user_id]}",
-      { 'X-TrackerToken'=>params[:api_key],'Content-Length'=>'0' }
-    )
+    "/services/v5/projects/#{params[:project]}/stories/#{params[:story_id]}?owned_by_id=#{params[:user_id]}",
+    { 'X-TrackerToken'=>params[:api_key],'Content-Length'=>'0' }
+  )
+  res = http.request(req)
   return http.request(req).body
 end
 
@@ -182,74 +178,79 @@ get '/status/:projects/:api_key' do
   haml :status
 end
 
-
-
-
-
+# Epics
 get '/epics/:projects/:api_key' do
 
-	@days_ago = 28
-	@start_date = Date.today - @days_ago
-	@epics_bugs = Hash.new();
-	@epics_features = Hash.new();
-	params[:projects].split(',').uniq.each { |project| # website=744405, apps=827127
-		@epics = *File.read("etc/epics-#{project}.txt").split(/\n/)
-		@epics.each { |epicname|
-			@epics_bugs[epicname] = Array.new()
-			@epics_features[epicname] = Array.new()
-			@filter="label:\"#{epicname}\"%20modified_since:#{@start_date.strftime("%m/%d/%Y")}"
-			@filter.gsub!(/ /, "%20")
-			doc = Nokogiri::HTML(stories(project, params[:api_key], @filter))
-			doc.xpath('//stories//story').each { |s|
-				story = Story.new.from_xml(s)
-				if story.story_type.eql? "bug"
-					 @epics_bugs[epicname] << story
-				else
-					 @epics_features[epicname] << story
-				end
-			}
-		}
-	}
+  @days_ago = 28
+  @start_date = Date.today - @days_ago
+  @epics_bugs = Hash.new();
+  @epics_features = Hash.new();
+  @epics = Array.new()
 
-	haml :epics
+  params[:projects].split(',').uniq.each { |project| # website=744405, apps=827127
+    burl = "/services/v5/projects/#{project}"
+    url = burl + "/labels"
+    epics = pt_get_body_json(url, params[:api_key])
+    epics.each do | epic |
+      @epics << epic['name'] if Date.parse(epic['updated_at']) >= @start_date
+    end
+
+    @epics.each { |epicname|
+      @epics_bugs[epicname] = Array.new()
+      @epics_features[epicname] = Array.new()
+      @filter="label:\"#{epicname}\"%20modified_since:#{@start_date.strftime("%m/%d/%Y")}"
+      @filter.gsub!(/ /, "%20")
+      doc = Nokogiri::HTML(stories(project, params[:api_key], @filter))
+      doc.xpath('//stories//story').each { |s|
+        story = Story.new.from_xml(s)
+        if story.story_type.eql? "bug"
+           @epics_bugs[epicname] << story
+        else
+           @epics_features[epicname] << story
+        end
+      }
+    }
+  }
+
+  haml :epics
 end
 
-
+# Team
 get '/team/:group/:projects/:api_key' do
-	@days_ago = 40
-	@members = Hash.new(0)
-	params[:projects].split(',').uniq.each { |project|
 
-		burl = "/services/v3/projects/#{project}"
-		url = burl + "/memberships"
-		doc = pt_get_body(url, params[:api_key])
-		doc.xpath('//memberships//membership').each { |member_xml|
-			m = Member.new()
-			m.from_xml(member_xml)
-			if !@members.key?(m.name)
-				@members[m.name] = m
-			end
-		}
-		if ! @members.has_key?("no one")
-			@nobody = Member.new('no one', 'NO')
-			@members[@nobody.name] = @nobody
-		end
+  @days_ago = 40
+  @members = Hash.new(0)
+  params[:projects].split(',').uniq.each { |project|
 
-		@start_date = Date.today - @days_ago
-		url = burl + "/stories?filter=modified_since:#{@start_date}.strftime('%m/%d/%Y')"
-		doc = pt_get_body(url, params[:api_key])
-		doc.xpath('//stories//story').each { |xml_story|
-			story = Story.new.from_xml(xml_story)
-			if @members[story.owned_by].nil?
-				next
-			end
-			@members[story.owned_by].add(story)
-		}
+    burl = "/services/v3/projects/#{project}"
+    url = burl + "/memberships"
+    doc = pt_get_body(url, params[:api_key])
+    doc.xpath('//memberships//membership').each { |member_xml|
+      m = Member.new()
+      m.from_xml(member_xml)
+      if !@members.key?(m.name)
+        @members[m.name] = m
+      end
+    }
+    if ! @members.has_key?("no one")
+      @nobody = Member.new('no one', 'NO')
+      @members[@nobody.name] = @nobody
+    end
 
-	}	# :projects
+    @start_date = Date.today - @days_ago
+    url = burl + "/stories?filter=modified_since:#{@start_date}.strftime('%m/%d/%Y')"
+    doc = pt_get_body(url, params[:api_key])
+    doc.xpath('//stories//story').each { |xml_story|
+      story = Story.new.from_xml(xml_story)
+      if @members[story.owned_by].nil?
+        next
+      end
+      @members[story.owned_by].add(story)
+    }
 
-	@members.values.each { |m| m.sort_stories() }
-	@current_group = params[:group] || "all"
-	haml :team
+  } # :projects
+
+  @members.values.each { |m| m.sort_stories() }
+  @current_group = params[:group] || "all"
+  haml :team
 end
-
