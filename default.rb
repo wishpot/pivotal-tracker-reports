@@ -89,10 +89,10 @@ get '/:projects/:api_key' do
         doc = Nokogiri::HTML(this_week(project, params[:api_key]))
         doc.xpath('//stories//story').each do |s|
           story = Story.new.from_xml(s)
-          if story.accepted_at.nil?
-            @upcoming_stories << story
-            @upcoming_story_counts[story.current_state] += 1
-          end
+          # if story.accepted_at.nil?
+          @upcoming_stories << story
+          @upcoming_story_counts[story.current_state] += 1
+          # end
         end
       end
     end

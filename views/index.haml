@@ -40,9 +40,12 @@
           %small
             %span.state
               %span.text-success
+                %strong #{@upcoming_story_counts['accepted']}
+              Accepted = works.
+              %span.text-warning
                 %strong #{@upcoming_story_counts['finished']}
               Finished = code complete, but not yet delivered.
-              %span.text-success
+              %span.text-warning
                 %strong #{@upcoming_story_counts['delivered']}
               Delivered = live, but not yet verified as fixed.
   - for story in @upcoming_stories
