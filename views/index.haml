@@ -48,7 +48,14 @@
   - for story in @upcoming_stories
     %tr
       %td.center
-        %span.state #{story.friendly_state.capitalize}
+        %span.state
+        - if story.friendly_state == "accepted"
+          %span.glyphicon.glyphicon-ok.green
+        - elsif story.friendly_state == "delivered"
+          %span.glyphicon.glyphicon-thumbs-up.yellow
+        - elsif story.friendly_state == "finished"
+          %span.glyphicon.glyphicon-time.yellow
+        / #{story.friendly_state.capitalize}
       %td
         %p
           %img{:src=>type_to_img(story.story_type), :title=>story.story_type}

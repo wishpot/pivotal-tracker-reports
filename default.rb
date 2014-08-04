@@ -17,8 +17,13 @@ require 'date' #this is mac-specific, which doesn't require the standard libs.
 
 before do
   @days_ago = params[:days_ago].to_i
-  @days_ago = 7 if @days_ago < 1
-  @start_date = Date.today-@days_ago
+  if params[:week] == "current"
+    @days_ago = 7 if @days_ago < 1
+    @start_date = Date.today-@days_ago
+  else
+    @days_ago = 7 if @days_ago < 1
+    @start_date = Date.today-@days_ago
+  end
   @pt_uri = URI.parse('https://www.pivotaltracker.com/')
   $testmode = 1
 end
