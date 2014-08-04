@@ -1,14 +1,24 @@
 %h1{:class=>'title'}
-  %span{:title=>"#{ @story_points} points"} #{@stories.count} Stories 
+  %span{:title=>"#{ @story_points} points"} #{@stories.count} Stories
   Live since #{@start_date.strftime('%b %d')}
-  %span{:title=>"#{@created_stories} stories were created", :class=>'improved '+(@improved ? 'green' : 'red')} (#{@created_stories} created)
+  %span{:title=>"#{@created_stories} stories were created", :class=>'improved '+(@improved ? 'text-success' : 'text-danger')} (#{@created_stories} created)
 #summary
-  Top Labels: 
-  - for stat in @top_labels
-    %span= Story.human_format(stat[0])+" "+stat[1].to_s+"%"
-  %ul
+  .list-group
+    %a.list-group-item
+      %h4 Top Labels:
+      %p
+        - for stat in @top_labels
+          = Story.human_format(stat[0])
+          %span.badge= stat[1].to_s+"%"
+  .list-group
     - for work in @top_owners
-      %li= work.name+" "+work.story_count.to_s+" stories, "+work.points_count.to_s+" points"
+      %a.list-group-item
+        %h4{:class=> ((work.story_count > 0 && work.points_count > 0) ? 'text-success' : 'text-warning')}= work.name
+        %p
+          %span{:class=>'badge '+(work.story_count > 0 ? 'alert-success' : 'alert-warning')}= work.story_count.to_s
+          stories
+          %span{:class=>'badge '+(work.points_count > 0 ? 'alert-success' : 'alert-warning')}= work.points_count.to_s
+          points
 - for label in @labels.keys.sort
   .label
     %h2= Story.human_format(label)
@@ -20,22 +30,46 @@
           .people Owner: #{@stories[sid].owned_by} | Accepted: #{@stories[sid].accepted_at.strftime("%a %m/%d")} | Requested by: #{@stories[sid].requested_by} on #{@stories[sid].created_at.strftime("%b %d")}
           - unless @stories[sid].description.nil?
             .description #{Story.auto_link_urls(CGI.escapeHTML(@stories[sid].description))}
-%h1{:class=>'title'}
-  #{@upcoming_stories.count} Upcoming Stories
-%span.state 
-  %span.green 
-    %strong #{@upcoming_story_counts['finished']} 
-  finished = code complete, but not yet delivered. 
-  %span.green 
-    %strong #{@upcoming_story_counts['delivered']} 
-  delivered = live, but not yet verified as fixed. 
-%table.upcoming
+
+%table.work.table.table-condensed.table-bordered.table-hover.table-striped
+  %thead
+    %tr
+      %td{:colspan=>2}
+        %h3{:class=>'title'}
+          %span.text-info #{@upcoming_stories.count} Upcoming Stories
+          %small
+            %span.state
+              %span.text-success
+                %strong #{@upcoming_story_counts['accepted']}
+              Accepted (Works),
+              %span.text-warning
+                %strong #{@upcoming_story_counts['finished']}
+              Finished (Code Complete),
+              %span.text-warning
+                %strong #{@upcoming_story_counts['delivered']}
+              Delivered (Live),
+              %span.text-danger
+                %strong #{@upcoming_story_counts['rejected']}
+              Rejected (Bugs).
   - for story in @upcoming_stories
     %tr
+      %td.center
+        %span.state
+        - if story.friendly_state == "accepted"
+          %span.glyphicon.glyphicon-ok.green
+        - elsif story.friendly_state == "delivered"
+          %span.glyphicon.glyphicon-thumbs-up.yellow
+        - elsif story.friendly_state == "finished"
+          %span.glyphicon.glyphicon-time.yellow
+        - elsif story.friendly_state == "rejected"
+          %span.glyphicon.glyphicon-remove.red
+        / #{story.friendly_state.capitalize}
       %td
-        %span.state #{story.friendly_state}
-      %td
-        %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
-        =friendly_title(story)
-        %br
-        .people Owner: #{story.owned_by} | Requested by: #{story.requested_by} on #{story.created_at.strftime("%b %d")} 
+        %p
+          %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
+          =friendly_title(story)
+        %p
+          %b Owner:
+          #{story.owned_by(@owners)} -
+          %b Requested by:
+          #{story.requested_by} on #{story.created_at.strftime("%b %d")}

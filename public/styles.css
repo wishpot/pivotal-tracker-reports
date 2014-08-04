@@ -1,65 +1,42 @@
-body   { font-family: Tahoma, sans-serif; font-size: 10pt; }
-h1, h2 { font-weight: normal; margin-bottom:0; margin-top: 5px; }
-h2     { margin-top: 1em;}
-
-.nav {
-  margin:0;
-  padding:0;
-}
-.nav li {
-  display:inline;
-  padding:0;
-  margin:0;
+body   {
+  font-family: Tahoma, sans-serif;
+  font-size: 10pt;
+  padding-top: 50px;
 }
 
-.description {
-  font-size: smaller;
-  margin-bottom: 4pt;
-  margin-left: 10pt;
-  overflow: hidden;
+.center {
+  text-align: center;
 }
-.people {
-  font-size: 7pt;
-  font-weight: bold;
-  padding-left: 18px; //for the icons
+
+.right {
+  text-align: right;
 }
-.stories { 
-  padding: 5px; 
-  background-color: #ffffff; 
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
-  border: 1px solid #a3a3a3;
+
+.green {
+  color: #00870E;
 }
-.label { 
-  padding: 8px; 
-  background-color: #E9EAEE; 
-  width: 510px; 
-  margin-bottom:10px; 
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  border-radius: 10px;
+
+.yellow {
+  color: #FFCC33;
 }
-.label h2 { padding-left: 5px; margin-top: 0; }
-#summary { margin-bottom: 5px; }
-#summary span { margin-right: 10px; }
 
-.state { font-size: 8pt; }
+.red {
+  color: #A40606;
+}
 
-.red { color: red; }
-.green { color: green;}
-.improved { font-size: 80% }
-.upcoming { font-size: 80%; }
+table td.owner {
+  white-space: nowrap;
+  text-align: center;
+}
 
-.unstyled li {list-style: none;}
+table td.date {
+  white-space: nowrap;
+}
 
-table.work { font-size: 80%; }
-td h2 { background-color: #E9EAEE; padding: 1pt;}
-td .subtitle {background-color: #CCCFDB; display:block; text-align: right; padding: 1pt;}
-table.work td.state,td.owner {white-space:nowrap;}
+table th {
+  text-align: center;
+}
 
-
-table.epic { table-layout:fixed; width:1400px; overflow: hidden; }
-table.team { table-layout:fixed; width:1400px; overflow: hidden; }
-table.mapkey { table-layout:fixed; width:1200px; overflow: hidden; margin-left:100px;  }
-#table.mapkey { table-layout:fixed; width:600px; overflow: hidden; margin-left:400px;  }
+table thead td {
+  text-indent: 15px;
+}
