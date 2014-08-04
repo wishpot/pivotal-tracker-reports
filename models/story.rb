@@ -13,7 +13,7 @@ class Story
     @accepted_at = accepted_at_node.nil? ? nil : DateTime.parse(accepted_at_node)
     @created_at = DateTime.parse(node['created_at'])
     @updated_at = DateTime.parse(node['updated_at'])
-    @requested_by = node['requested_by']
+    @requested_by_id = node['requested_by_id']
     @current_state = node['current_state']
     owned_by_node = node['owned_by']
     @owned_by_id = node['owned_by_id'] # owned_by_node.nil? || owned_by_node.length == 0 ? 'no one' : owned_by_node
@@ -28,7 +28,19 @@ class Story
   end
 
   def owned_by(owners)
-    owners[@owned_by_id]['name']
+    if owners[@owned_by_id]
+      return owners[@owned_by_id]['name']
+    else
+      "no one"
+    end
+  end
+
+  def requested_by(owners)
+    if owners[@requested_by_id]
+      return owners[@requested_by_id]['name']
+    else
+      "no one"
+    end
   end
 
   def self.count_stories_from_xml(xml_doc)

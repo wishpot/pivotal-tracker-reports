@@ -70,6 +70,6 @@
           =friendly_title(story)
         %p
           %b Owner:
-          #{story.owned_by} -
+          #{story.owned_by(@owners)} -
           %b Requested by:
           #{story.requested_by} on #{story.created_at.strftime("%b %d")}

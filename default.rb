@@ -55,7 +55,6 @@ get '/:projects/:api_key' do
     @labels = Hash.new
     @story_points = 0
     @owner_work = Hash.new
-    @owners = Hash.new
 
     #this simply assumes all stories are weighted the same, but if a story has multiple labels, it
     #splits it's weight across them.
@@ -67,9 +66,7 @@ get '/:projects/:api_key' do
     @upcoming_story_counts = Hash.new(0)
 
     params[:projects].split(',').uniq.each do |project|
-      memberships(project, params[:api_key]).each do | member |
-        @owners[member['person']['id']] = member['person']
-      end
+      @owners = owners(project, params[:api_key])
 
       stories = stories(project, params[:api_key],
         "state:accepted%20includedone:true%20modified_since:#{@start_date.strftime("%m/%d/%Y")}")
@@ -134,10 +131,11 @@ get '/status/:projects/:api_key' do
   @scheduled_story_ids = Set.new
 
   params[:projects].split(',').uniq.each do |project|
+    @owners = owners(project, params[:api_key])
 
     #Work done in last iteration
     if(include_done)
-       doc = Nokogiri::HTML(done(project, params[:api_key]))
+       doc = done(project, params[:api_key])
        story_iteration_iterator(doc) do |story|
         if story.accepted_at.nil?
           @recently_delivered_by_owner[story.owned_by] ||= Array.new and @recently_delivered_by_owner[story.owned_by] << story
@@ -151,7 +149,7 @@ get '/status/:projects/:api_key' do
 
     #Get the upcoming work
     begin
-      doc = Nokogiri::HTML(this_week(project, params[:api_key]))
+      doc = this_week(project, params[:api_key])
       story_iteration_iterator(doc) do |story|
         if story.current_state == 'unstarted'
           @next_up_stories << story
@@ -172,18 +170,18 @@ get '/status/:projects/:api_key' do
 
     #Grab the recently logged stories
     begin
-      doc = Nokogiri::HTML(created_since(@start_date, project, params[:api_key], 'state:unscheduled'))
-      doc.xpath('//stories//story').each do |s|
-        story = Story.new.from_xml(s)
+      stories = created_since(@start_date, project, params[:api_key], 'state:unscheduled')
+      stories.each do |story|
+        story = Story.new.from_xml(story)
         @recently_logged_stories << story unless @scheduled_story_ids.include?(story.story_id)
       end
     end
 
     #Grab the icebox
     if(include_icebox)
-      doc = Nokogiri::HTML(icebox(project, params[:api_key]))
-      doc.xpath('//stories//story').take(20).each do |s|
-        @icebox << Story.new.from_xml(s)
+      stories = icebox(project, params[:api_key])
+      stories.take(20).each do |story|
+        @icebox << Story.new.from_xml(story)
       end
     end
   end

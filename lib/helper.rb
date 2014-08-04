@@ -39,19 +39,19 @@ def iterations(project, api_key, limit=1, skip=0)
   return _iterations('current_backlog', project, api_key, limit, skip)
 end
 
-#NOTE: in this context, 'skip' means 'how many backwards to skip'
 def done(project, api_key, limit=1, skip=0)
   return _iterations('done', project, api_key, limit, (skip*-1)-1)
 end
 
 def _iterations(path, project, api_key, limit=nil, skip=nil)
-  url = "/services/v3/projects/#{project}/iterations/#{path}?"
+  url = "/services/v5/projects/#{project}/iterations?"
+  url += "scope=#{path}&"
   url += "limit=#{limit}&" unless limit.nil?
   url += "offset=#{skip}&" unless skip.nil?
 
   req = Net::HTTP::Get.new( url, {'X-TrackerToken'=>api_key} )
   res = http.request(req)
-  return res.body
+  return JSON.parse(res.body)
 end
 
 def icebox(project, api_key, filter='')
@@ -66,18 +66,18 @@ def modified_since(date, project, api_key, filter='')
   return stories(project, api_key, "modified_since:#{date.strftime("%m/%d/%Y")}%20#{filter}")
 end
 
-def parse_stories_from_iterations(html)
+def parse_stories_from_iterations(json)
   stories = Array.new
-  story_iteration_iterator(Nokogiri::HTML(html)) { |story| stories << story }
+  story_iteration_iterator(json) { |story| stories << story }
   return stories
 end
 
 #Given an HTML doc, builds a story for each and yields each one
-def story_iteration_iterator(doc)
-  doc.xpath('//iteration').each do |i|
-    due = Date.parse(i.xpath('finish')[0].content)
-    i.xpath('//stories//story').each do |s|
-      story = Story.new.from_xml(s)
+def story_iteration_iterator(iterations)
+  iterations.each do |iteration|
+    due = Date.parse(iteration['finish'])
+    iteration['stories'].each do |story|
+      story = Story.new.from_xml(story)
       story.estimated_date = due
       yield story
     end
@@ -103,12 +103,20 @@ def memberships(project, api_key, filter='')
   return JSON.parse(res.body)
 end
 
+def owners(project, api_key, filter='')
+  return @owners if @owners
+  @owners = {}
+  memberships(project, params[:api_key]).each do | member |
+    @owners[member['person']['id']] = member['person']
+  end
+  @owners
+end
 
 #Wraps any XML search
 def pt_get_body(url, api_key)
   req = Net::HTTP::Get.new(url, {'X-TrackerToken'=>api_key} )
   res = res = http.request(req)
-  return Nokogiri::HTML(res.body)
+  return JSON.parse(res.body)
 end
 
 def pt_get_body_json(url, api_key)

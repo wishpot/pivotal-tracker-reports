@@ -20,10 +20,10 @@
         %th Owner
         %th Points
         %th
-    -for story in @done_stories.sort{|a,b| a.owned_by <=> b.owned_by}
+    -for story in @done_stories.sort{|a,b| a.owned_by(@owners) <=> b.owned_by(@owners)}
       %tr
         %td.center #{story.accepted_at.strftime("%b %d")}
-        %td.owner #{story.owned_by}
+        %td.owner #{story.owned_by(@owners)}
         %td.center #{story.estimate}
         %td
           %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"}
@@ -58,7 +58,7 @@
     - for story in @current_stories.sort{|a,b| Story.status_sort(a,b)}
       %tr
         %td.state #{story.friendly_state.capitalize}
-        %td.owner #{story.owned_by}
+        %td.owner #{story.owned_by(@owners)}
         %td.center #{story.estimate}
         %td
           %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"}
@@ -78,7 +78,7 @@
     - for story in @next_up_stories
       %tr
         %td.center #{story.estimated_date.strftime("%b %d")}
-        %td.owner #{story.owned_by}
+        %td.owner #{story.owned_by(@owners)}
         %td.center #{story.estimate}
         %td
           %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"}
@@ -105,7 +105,7 @@
       %tr
         %td.center
           %span{:title=>"Estimated 'code complete'"} #{story.estimated_date.strftime("%b %d")}
-        %td.owner #{story.owned_by}
+        %td.owner #{story.owned_by(@owners)}
         %td.center #{story.estimate}
         %td
           %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"}
@@ -134,7 +134,7 @@
     - for story in @icebox
       %tr
         %td.center
-        %td.owner #{story.owned_by}
+        %td.owner #{story.owned_by(@owners)}
         %td.center #{story.estimate}
         %td
           %span{:title=>"last updated: #{story.updated_at.strftime("%b %d")}"}
@@ -160,7 +160,7 @@
   - for story in @recently_logged_stories.sort{|a,b| a.created_at <=> b.created_at}
     %tr
       %td.center
-        %img{:src=>type_to_img(story.story_type), :title=>story.story_type+' assigned to: '+story.owned_by}
-      %td.owner #{story.requested_by}
+        %img{:src=>type_to_img(story.story_type), :title=>story.story_type+' assigned to: '+story.owned_by(@owners)}
+      %td.owner #{story.requested_by(@owners)}
       %td.date.center #{story.created_at.strftime("%b %d")}
       %td #{friendly_title(story)}
