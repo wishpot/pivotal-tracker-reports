@@ -41,6 +41,10 @@ post '/api/:project/:api_key/assign/:story_id/:user_id' do
   return http.request(req).body
 end
 
+get '/' do
+  haml :lol
+end
+
 get '/:projects/:api_key' do
     @title = 'Accepted Stories Report'
     @stories = Hash.new

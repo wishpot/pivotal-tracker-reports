@@ -1,15 +1,24 @@
-%html
+%html{:lang=>'en'}
   %head
+    %link{:href=>'/vendor/css/bootstrap.min.css', :rel=>'stylesheet', :type=>'text/css'}
     %link{:href=>'/styles.css', :rel=>'stylesheet', :type=>'text/css'}
     %title=@title
   %body
-    %ol.nav
-      %li
-        %a{:href=>"/#{params[:projects]}/#{params[:api_key]}", :title=>"Show activity from #{@start_date} to now"} Last Week
-      %li
-        %a{:href=>"/status/#{params[:projects]}/#{params[:api_key]}"} Status
-      %li
-        %a{:href=>"/epics/#{params[:projects]}/#{params[:api_key]}"} Epics
-      %li
-        %a{:href=>"/team/all/#{params[:projects]}/#{params[:api_key]}"} Team
-    =yield
+    .navbar.navbar-inverse.navbar-fixed-top{role: "navigation"}
+      .container
+        .navbar-header
+          %a.navbar-brand{href: "#"} AchieveMore Report
+        .collapse.navbar-collapse
+          %ul.nav.navbar-nav
+            %li
+              %a{:href=>"/#{params[:projects]}/#{params[:api_key]}", :title=>"Show activity from #{@start_date} to now"} Last Week
+            %li
+              %a{:href=>"/status/#{params[:projects]}/#{params[:api_key]}"} Status
+            %li
+              %a{:href=>"/epics/#{params[:projects]}/#{params[:api_key]}"} Epics
+            / %li
+            /   %a{:href=>"/team/all/#{params[:projects]}/#{params[:api_key]}"} Team
+    %div.container
+      =yield
+  %script{src: "https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"}
+  %script{src: "/vendor/js/%bootstrap.min.js"}
