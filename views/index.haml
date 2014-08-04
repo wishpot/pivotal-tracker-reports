@@ -31,27 +31,29 @@
           - unless @stories[sid].description.nil?
             .description #{Story.auto_link_urls(CGI.escapeHTML(@stories[sid].description))}
 
-%table.upcoming.table.table-condensed.table-hover
-  %tr.active
-    %td{:colspan=>2}
-      %h1{:class=>'title'}
-        #{@upcoming_stories.count} Upcoming Stories
-      %span.state
-        %span.text-success
-          %strong #{@upcoming_story_counts['finished']}
-        Finished = code complete, but not yet delivered.
-        %span.text-success
-          %strong #{@upcoming_story_counts['delivered']}
-        Delivered = live, but not yet verified as fixed.
+%table.work.table.table-condensed.table-bordered.table-hover.table-striped
+  %thead
+    %tr
+      %td{:colspan=>2}
+        %h3{:class=>'title'}
+          %span.text-info #{@upcoming_stories.count} Upcoming Stories
+          %small
+            %span.state
+              %span.text-success
+                %strong #{@upcoming_story_counts['finished']}
+              Finished = code complete, but not yet delivered.
+              %span.text-success
+                %strong #{@upcoming_story_counts['delivered']}
+              Delivered = live, but not yet verified as fixed.
   - for story in @upcoming_stories
     %tr
-      %td
+      %td.center
         %span.state #{story.friendly_state.capitalize}
       %td
-        %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
-        =friendly_title(story)
-        %br
-        .people
+        %p
+          %img{:src=>type_to_img(story.story_type), :title=>story.story_type}
+          =friendly_title(story)
+        %p
           %b Owner:
           #{story.owned_by} -
           %b Requested by:

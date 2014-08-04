@@ -1,4 +1,30 @@
-body   { font-family: Tahoma, sans-serif; font-size: 10pt; padding-top: 50px; }
+body   {
+  font-family: Tahoma, sans-serif;
+  font-size: 10pt;
+  padding-top: 50px;
+}
+
+.center {
+  text-align: center;
+}
+
+.right {
+  text-align: right;
+}
+
 table td.owner {
   white-space: nowrap;
+  text-align: center;
+}
+
+table td.date {
+  white-space: nowrap;
+}
+
+table th {
+  text-align: center;
+}
+
+table thead td {
+  text-indent: 15px;
 }

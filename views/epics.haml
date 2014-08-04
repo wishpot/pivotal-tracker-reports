@@ -7,7 +7,7 @@
 - @epics_features.each do |epicname, epic_stories|
   %br
   %h2 #{epicname}
-  %table.epic
+  %table.epic.table.table-condensed.table-hover
     - max_rows = [[@epics_features[epicname].count, @epics_bugs[epicname].count].max, 15].min
     - (0..max_rows).each do |i|
       - feature = @epics_features[epicname][i]
